@@ -7,10 +7,10 @@ const conf = require('./conf');
 const errors = require('./errors');
 
 const bucket = new aws.S3({
+  accessKeyId: conf.s3AccessKey,
+  secretAccessKey: conf.s3Secret,
   params: {
-    Bucket: conf.s3Bucket,
-    accessKeyId: conf.s3AccessKey,
-    secretAccessKey: conf.s3Secret
+    Bucket: conf.s3Bucket
   }
 });
 

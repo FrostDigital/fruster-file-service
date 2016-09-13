@@ -36,7 +36,7 @@ describe('File service', function() {
   
   it('should upload file to s3 bucket status', function(done) {      
     post('/upload', 'trump.jpg', function(error, response, body) {
-      expect(response.statusCode).toBe(201); 
+      expect(response.statusCode).toBe(201);       
       expect(body.data.url).toContain('https://fruster-uploads.s3.amazonaws.com');
       expect(body.data.originalName).toBe('trump.jpg');
       expect(body.data.key).toContain('.jpeg');
