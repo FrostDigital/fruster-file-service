@@ -15,14 +15,19 @@ module.exports = {
 
   // Name of S3 bucket
   s3Bucket: process.env.S3_BUCKET || 'fruster-uploads',
-  
+
   // ACL for uploaded files, defaults to public-read which will make
   // uploaded files public
   s3Acl: process.env.S3_ACL || 'public-read',
 
   // Max file size of uploaded files in mb 
-  maxFileSize: process.env.MAX_FILE_SIZE_MB || 5
+  maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
+
+  serviceName: process.env.SERVICE_NAME || "file-service"
+
 };
+
+module.exports.serviceHttpUrl = process.env.APP_NAME ? 'http://' + process.env.APP_NAME + '.' + process.env.APP_NAME : 'http://localhost:' + module.exports.port;
 
 function parseArray(str) {
   if (str) {
