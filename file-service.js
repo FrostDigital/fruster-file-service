@@ -73,10 +73,11 @@ module.exports = {
         .then(() =>  {
           // TODO
           // bus.subscribe('file-service.get-meta', getMeta);
-          bus.subscribe('file-service.health')
+          bus.subscribe("http.get." + conf.serviceName + '.health')
             .forwardToHttpUrl(conf.serviceHttpUrl + "/health");
-          bus.subscribe('file-service.upload')
-            .forwardToHttpUrl(conf.serviceHttpUrl + "/upload");
+          bus.subscribe("http.post." + conf.serviceName + '.upload')
+            .forwardToHttpUrl(conf.serviceHttpUrl + "/upload")
+            .mustBeLoggedIn();
         });
     };
 

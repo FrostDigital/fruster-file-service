@@ -21,7 +21,9 @@ module.exports = {
   s3Acl: process.env.S3_ACL || 'public-read',
 
   // Max file size of uploaded files in mb 
-  maxFileSize: process.env.MAX_FILE_SIZE_MB || 5
+  maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
+
+  serviceName: process.env.SERVICE_NAME || "file-service"
 
 };
 
