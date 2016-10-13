@@ -27,7 +27,7 @@ module.exports = {
 
 };
 
-module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.HOSTNAME + '.' + process.env.HOSTNAME : 'http://localhost:' + module.exports.port;
+module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.DEIS_APP + '.' + process.env.DEIS_APP : 'http://localhost:' + module.exports.port;
 
 function parseArray(str) {
   if (str) {
