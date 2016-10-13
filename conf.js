@@ -5,7 +5,7 @@ module.exports = {
   bus: parseArray(process.env.BUS) || ['nats://localhost:4222'],
 
   // HTTP port
-  port: process.env.HTTP_PORT || 3001,
+  port: process.env.PORT || 3001,
 
   // AWS S3 access key
   s3AccessKey: process.env.S3_ACCESS_KEY || 'AKIAJPEXVPNKCC2H35AQ',
