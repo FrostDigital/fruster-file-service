@@ -23,7 +23,15 @@ module.exports = {
   // Max file size of uploaded files in mb 
   maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
 
-  serviceName: process.env.SERVICE_NAME || "file-service"
+  serviceName: process.env.SERVICE_NAME || "file-service",
+
+  // Comma separated string of mime types
+  allowedFileTypes: parseArray(process.env.ALLOWED_FILE_TYPES) || [ 
+    "image/jpg", 
+    "image/jpeg", 
+    "image/png",
+    "image/gif"
+  ] 
 
 };
 

@@ -48,6 +48,5 @@ module.exports = multer({
 });
 
 function isValidMimeType(mimeType) {
-  // TODO: make this configurable
-  return /^image\/(jpe?g|png|gif|txt|doc|pdf)$/i.test(mimeType);
+  return conf.allowedFileTypes.indexOf(mimeType);  
 }
