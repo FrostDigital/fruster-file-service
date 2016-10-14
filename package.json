@@ -11,7 +11,7 @@
     "body-parser": "~1.15.1",
     "express": "~4.13.4",
     "fruster-bus": "~0.0.13",
-    "fruster-log": "0.0.2",
+    "fruster-log": "0.0.6",
     "mime-types": "^2.1.11",
     "multer": "^1.2.0",
     "multer-s3": "^2.3.2",

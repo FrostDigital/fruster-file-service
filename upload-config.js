@@ -21,11 +21,11 @@ module.exports = multer({
   
   fileFilter: function(req, file, cb) {        
     
-    if(file && !isValidMimeType(file.mimetype)) {
-      // Attach error details to request object so it can be used later on
-      req.fileUploadError = errors.invalidFileType(file.originalname);
-      return cb(null, false);
-    }
+    // if(file && !isValidMimeType(file.mimetype)) {
+    //   // Attach error details to request object so it can be used later on
+    //   req.fileUploadError = errors.invalidFileType(file.originalname);
+    //   return cb(null, false);
+    // }
     
     cb(null, true);
   },
@@ -47,7 +47,6 @@ module.exports = multer({
   })
 });
 
-function isValidMimeType(mimeType) {
-  // TODO: make this configurable
-  return /^image\/(jpe?g|png|gif|txt|doc|pdf)$/i.test(mimeType);
-}
+// function isValidMimeType(mimeType) {
+//   return conf.allowedFileTypes.indexOf(mimeType);  
+// }
