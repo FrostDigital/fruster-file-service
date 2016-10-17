@@ -34,12 +34,32 @@ describe('File service', function() {
     }
   });
   
-  it('should upload file to s3 bucket status', function(done) {      
+  it('should upload file to s3 bucket', function(done) {      
     post('/upload', 'trump.jpg', function(error, response, body) {
       expect(response.statusCode).toBe(201);       
       expect(body.data.url).toContain('https://fruster-uploads.s3.amazonaws.com');
       expect(body.data.originalName).toBe('trump.jpg');
-      expect(body.data.key).toContain('.jpeg');
+      expect(body.data.key).toContain('.jpg');
+      done();      
+    });
+  });
+
+  it('should upload file to s3 bucket and keep file extension from uploaded file', function(done) {      
+    post('/upload', 'random-file-format.fit', function(error, response, body) {
+      expect(response.statusCode).toBe(201);       
+      expect(body.data.url).toContain('https://fruster-uploads.s3.amazonaws.com');
+      expect(body.data.originalName).toBe('random-file-format.fit');
+      expect(body.data.key).toContain('.fit');
+      done();      
+    });
+  });
+
+  it('should upload file to s3 bucket and set file extension from mimetype if no extension is set in file name', function(done) {      
+    post('/upload', 'file-without-extension', function(error, response, body) {
+      expect(response.statusCode).toBe(201);       
+      expect(body.data.url).toContain('https://fruster-uploads.s3.amazonaws.com');
+      expect(body.data.originalName).toBe('file-without-extension');
+      expect(body.data.key).toContain('.bin');
       done();      
     });
   });

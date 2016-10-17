@@ -13,7 +13,7 @@ module.exports = {
   code: errorCode,
 
   fileNotProvided: function() {
-    return err(400, errorCode.fileNotProvided, 'No file provided', 'Failed to upload, not file was provided');
+    return err(400, errorCode.fileNotProvided, 'No file provided', 'Failed to upload, no file was provided - is file part named "file"?');
   },
 
   invalidFileType: function(file) {
