@@ -41,8 +41,10 @@ module.exports = multer({
         fieldName: file.fieldname
       });
     },
-    key: function (req, file, cb) {
-      cb(null, uuid.v4() + '.' + mime.extension(file.mimetype));
+    key: function (req, file, cb) {      
+      const fileSplit = file.originalname.split('.');
+      const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : mime.extension(file.mimetype);
+      cb(null, uuid.v4() + '.' + fileExt); 
     }
   })
 });
