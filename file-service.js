@@ -9,7 +9,6 @@ const conf = require('./conf');
 const upload = require('./upload-config');
 const dateStarted = new Date();
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
