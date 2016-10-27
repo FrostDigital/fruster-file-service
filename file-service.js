@@ -9,19 +9,12 @@ const conf = require('./conf');
 const upload = require('./upload-config');
 const dateStarted = new Date();
 
-
 app.use(bodyParser.urlencoded({
-  limit: '50mb',
-  extended: true
+  extended: false
 }));
 app.use(bodyParser.json({
   limit: conf.maxFileSize + 'mb'
 }));
-
-app.use(bodyParser.json({
-  limit: '50mb'
-}));
-
 
 app.get('/health', function (req, res) {
   res.json({
