@@ -9,13 +9,13 @@ const conf = require('./conf');
 const upload = require('./upload-config');
 const dateStarted = new Date();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(bodyParser.json({
-  limit: conf.maxFileSize * 1024 * 1024
-}));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({
+//   extended: false
+// }));
+// app.use(bodyParser.json({
+//   limit: conf.maxFileSize * 1024 * 1024
+// }));
 
 app.get('/health', function (req, res) {
   res.json({
