@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 app.use(bodyParser.json({
-  limit: conf.maxFileSize
+  limit: conf.maxFileSize * 1024 * 1024
 }));
 
 app.get('/health', function (req, res) {
