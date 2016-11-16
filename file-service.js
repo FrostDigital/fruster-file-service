@@ -9,9 +9,11 @@ const conf = require('./conf');
 const upload = require('./upload-config');
 const dateStarted = new Date();
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
+}));
+app.use(bodyParser.json({
+  limit: conf.maxFileSize + 'mb'
 }));
 
 app.get('/health', function (req, res) {
@@ -75,9 +77,15 @@ module.exports = {
           // bus.subscribe('file-service.get-meta', getMeta);
           bus.subscribe("http.get." + conf.serviceName + '.health')
             .forwardToHttpUrl(conf.serviceHttpUrl + "/health");
-          bus.subscribe("http.post." + conf.serviceName + '.upload')
-            .forwardToHttpUrl(conf.serviceHttpUrl + "/upload")
-            .mustBeLoggedIn();
+
+          if (conf.mustBeLoggedIn === "true") {
+            bus.subscribe("http.post." + conf.serviceName + '.upload')
+              .forwardToHttpUrl(conf.serviceHttpUrl + "/upload")
+              .mustBeLoggedIn();
+          } else {
+            bus.subscribe("http.post." + conf.serviceName + '.upload')
+              .forwardToHttpUrl(conf.serviceHttpUrl + "/upload");
+          }
         });
     };
 

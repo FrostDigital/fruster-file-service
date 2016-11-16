@@ -25,13 +25,15 @@ module.exports = {
 
   serviceName: process.env.SERVICE_NAME || "file-service",
 
+  mustBeLoggedIn: process.env.MUST_BE_LOGGED_IN || "false",
+
   // Comma separated string of mime types
-  allowedFileTypes: parseArray(process.env.ALLOWED_FILE_TYPES) || [ 
-    "image/jpg", 
-    "image/jpeg", 
+  allowedFileTypes: parseArray(process.env.ALLOWED_FILE_TYPES) || [
+    "image/jpg",
+    "image/jpeg",
     "image/png",
     "image/gif"
-  ] 
+  ]
 
 };
 
