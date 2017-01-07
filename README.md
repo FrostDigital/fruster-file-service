@@ -4,7 +4,7 @@ Upload files to S3.
 
 ## REST API
 
-Note that file service is slightly different compared to other Fruster services since it runs a web server and xposes an upload HTTP endpoint itself. 
+Note that file service is slightly different compared to other Fruster services since it runs a web server and exposes an upload HTTP endpoint itself. 
 
 This is done simply because NATS is not good at handling large amount of data, such as large files.
 
