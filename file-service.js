@@ -99,7 +99,9 @@ module.exports = {
           } else {
             bus.subscribe(subject)
               .forwardToHttpUrl(uploadUrl);
-          }          
+          }
+
+          bus.subscribe(`${conf.serviceName}.get-signed-url`, require("./lib/get-signed-url"));
         });
     };
 

@@ -25,8 +25,8 @@ module.exports = {
 
   serviceName: process.env.SERVICE_NAME || "file-service",
 
-  mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
-
+  mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false")
+  
 };
 
 module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.DEIS_APP + '.' + process.env.DEIS_APP : 'http://localhost:' + module.exports.port;

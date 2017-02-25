@@ -2,6 +2,40 @@
 
 Upload files to S3.
 
+## Subjects
+
+### file-service.get-signed-url
+
+Returns signed url to a file in S3. The url is valid for 60 sec by default but can be configured by passing in `expires` in request data.
+
+This is useful when bucket cannot be public on web.
+
+#### Example
+
+Get signed url for file `/foo/bar.jpg` that is valid for 2 minutes.
+
+##### Request
+
+    {
+        reqId: "0f21794e-ea9c-4ca3-a9e6-e0e962f14b45",
+        data: {
+            // doesn't mater if path starts with slash or not
+            file: "foo/bar.jpg",
+
+            // optional set for how long url is valid (default 1m)            
+            expires: "2m"
+        }
+    }
+
+##### Response
+    
+    {
+        reqId: "0f21794e-ea9c-4ca3-a9e6-e0e962f14b45",
+        data: {
+            url: "https://fruster-uploads.s3.amazonaws.com/foo/bar?AWSAccessKeyId=AKIAI4TLHNQYQKYKPZFQ&Expires=1488042874&Signature=ua9M1rG145sN%2FZcrMRK4erswNUo%3D"
+        }
+    }
+
 ## REST API
 
 Note that file service is slightly different compared to other Fruster services since it runs a web server and exposes an upload HTTP endpoint itself. 
