@@ -27,14 +27,6 @@ module.exports = {
 
   mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
-  // Comma separated string of mime types
-  // allowedFileTypes: parseArray(process.env.ALLOWED_FILE_TYPES) || [
-  //   "image/jpg",
-  //   "image/jpeg",
-  //   "image/png",
-  //   "image/gif"
-  // ]
-
 };
 
 module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.DEIS_APP + '.' + process.env.DEIS_APP : 'http://localhost:' + module.exports.port;

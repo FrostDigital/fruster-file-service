@@ -82,11 +82,11 @@ module.exports = {
         .on("listening", resolve);
     });
 
-    var connectToBus = function () {
+    let connectToBus = () => {
       return bus.connect(busAddress)
         .then(() =>  {          
-          bus.subscribe("http.get." + conf.serviceName + ".health")
-            .forwardToHttpUrl(conf.serviceHttpUrl + "/health");
+          
+          bus.subscribe("http.get." + conf.serviceName + ".health").forwardToHttpUrl(conf.serviceHttpUrl + "/health");          
 
           const subject = "http.post." + conf.serviceName + ".upload";
           const uploadUrl = conf.serviceHttpUrl + "/upload";
@@ -95,10 +95,11 @@ module.exports = {
             bus.subscribe(subject)
               .forwardToHttpUrl(uploadUrl)
               .mustBeLoggedIn();
+
           } else {
             bus.subscribe(subject)
               .forwardToHttpUrl(uploadUrl);
-          }
+          }          
         });
     };
 
