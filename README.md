@@ -59,25 +59,25 @@ Performs a multipart form upload.
 
 ## Configuration
 
-    // NATS servers, set multiple if using cluster
-    // Example: `['nats://10.23.45.1:4222', 'nats://10.23.41.8:4222']`
-    bus: parseArray(process.env.BUS) || ['nats://localhost:4222'],
+    # NATS servers, set multiple if using cluster
+    # Example: `['nats://10.23.45.1:4222', 'nats://10.23.41.8:4222']`
+    BUS = nats://localhost:4222
 
-    // HTTP port
-    port: process.env.HTTP_PORT || 3001,
+    # HTTP port
+    PORT = 3001
 
-    // AWS S3 access key
-    s3AccessKey: process.env.S3_ACCESS_KEY || 'AKIAJPEXVPNKCC2H35AQ',
+    # AWS S3 access key
+    AWS_ACCESS_KEY_ID = AKIAJPEXVPNKCC2H35AQ
 
-    // AWS S3 secret key
-    s3Secret: process.env.S3_SECRET || '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',
+    # AWS S3 secret key
+    AWS_SECRET_ACCESS_KEY = "0KK41oXRPZItRrhuwh+Sd+cfq2EntJXN4UHZpNrq"
 
-    // Name of S3 bucket
-    s3Bucket: process.env.S3_BUCKET || 'fruster-uploads',
+    # Name of S3 bucket
+    S3_BUCKET = "fruster-uploads"
 
-    // ACL for uploaded files, defaults to public-read which will make
-    // uploaded files public
-    s3Acl: process.env.S3_ACL || 'public-read',
+    # ACL for uploaded files, defaults to public-read which will make
+    # uploaded files public
+    S3_ACL="public-read"
 
-    // Max file size of uploaded files in mb 
-    maxFileSize: process.env.MAX_FILE_SIZE_MB || 5
+    # Max file size of uploaded files in mb 
+    MAX_FILE_SIZE_MB=5

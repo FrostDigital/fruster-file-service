@@ -86,19 +86,19 @@ module.exports = {
       return bus.connect(busAddress)
         .then(() =>  {          
           
-          bus.subscribe("http.get." + conf.serviceName + ".health").forwardToHttpUrl(conf.serviceHttpUrl + "/health");          
+          bus.subscribe("http.get." + conf.serviceName + ".health").forwardToHttp(conf.serviceHttpUrl + "/health");          
 
           const subject = "http.post." + conf.serviceName + ".upload";
           const uploadUrl = conf.serviceHttpUrl + "/upload";
 
           if (conf.mustBeLoggedIn) {
             bus.subscribe(subject)
-              .forwardToHttpUrl(uploadUrl)
+              .forwardToHttp(uploadUrl)
               .mustBeLoggedIn();
 
           } else {
             bus.subscribe(subject)
-              .forwardToHttpUrl(uploadUrl);
+              .forwardToHttp(uploadUrl);
           }
 
           bus.subscribe(`${conf.serviceName}.get-signed-url`, require("./lib/get-signed-url"));
