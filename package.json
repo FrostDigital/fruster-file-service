@@ -21,7 +21,7 @@
     "uuid": "^2.0.3"
   },
   "devDependencies": {
-    "fruster-test-utils": "^0.3.4",
+    "fruster-test-utils": "^0.3.5",
     "jasmine": "^2.5.2",
     "jasmine-spec-reporter": "^2.7.0",
     "nats-server-control": "0.0.1",
