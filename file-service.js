@@ -74,7 +74,7 @@ function parseBusMessage(str) {
 }
 
 module.exports = {
-  start: function (httpServerPort, busAddress) {
+  start: function (busAddress, httpServerPort) {
     var startHttpServer = new Promise(function (resolve, reject) {
       http.createServer(app)
         .listen(httpServerPort)

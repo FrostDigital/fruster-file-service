@@ -5,7 +5,7 @@ const conf = require("./conf");
 require("fruster-health").start();
 
 fileService
-	.start(conf.port, conf.bus)
+	.start(conf.bus, conf.port)
 	.then(function () {
 		log.info("File service started and connected to bus", conf.bus);
 	})
