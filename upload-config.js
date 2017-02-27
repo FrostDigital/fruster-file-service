@@ -1,14 +1,14 @@
 const multerS3 = require('multer-s3');
 const multer = require('multer');
-const aws = require('aws-sdk');
+const aws = require("aws-sdk");
 const uuid = require('uuid');
 const mime = require('mime-types');
 const conf = require('./conf');
 const errors = require('./errors');
 
 const bucket = new aws.S3({
-  accessKeyId: conf.s3AccessKey,
-  secretAccessKey: conf.s3Secret,
+  accessKeyId: conf.awsAccessKeyId,
+  secretAccessKey: conf.awsSecretAccessKey,
   params: {
     Bucket: conf.s3Bucket
   }
@@ -18,18 +18,7 @@ module.exports = multer({
   limits: {
     fileSize: conf.maxFileSize * 1024 * 1024
   },
-  
-  fileFilter: function(req, file, cb) {        
     
-    // if(file && !isValidMimeType(file.mimetype)) {
-    //   // Attach error details to request object so it can be used later on
-    //   req.fileUploadError = errors.invalidFileType(file.originalname);
-    //   return cb(null, false);
-    // }
-    
-    cb(null, true);
-  },
-  
   // Use S3 as storage, according to docs the upload should be streamed 
   storage: multerS3({
     s3: bucket,
@@ -49,6 +38,3 @@ module.exports = multer({
   })
 });
 
-// function isValidMimeType(mimeType) {
-//   return conf.allowedFileTypes.indexOf(mimeType);  
-// }

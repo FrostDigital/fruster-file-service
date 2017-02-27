@@ -74,7 +74,7 @@ function parseBusMessage(str) {
 }
 
 module.exports = {
-  start: function (httpServerPort, busAddress) {
+  start: function (busAddress, httpServerPort) {
     var startHttpServer = new Promise(function (resolve, reject) {
       http.createServer(app)
         .listen(httpServerPort)
@@ -82,23 +82,26 @@ module.exports = {
         .on("listening", resolve);
     });
 
-    var connectToBus = function () {
+    let connectToBus = () => {
       return bus.connect(busAddress)
         .then(() =>  {          
-          bus.subscribe("http.get." + conf.serviceName + ".health")
-            .forwardToHttpUrl(conf.serviceHttpUrl + "/health");
+          
+          bus.subscribe("http.get." + conf.serviceName + ".health").forwardToHttp(conf.serviceHttpUrl + "/health");          
 
           const subject = "http.post." + conf.serviceName + ".upload";
           const uploadUrl = conf.serviceHttpUrl + "/upload";
 
           if (conf.mustBeLoggedIn) {
             bus.subscribe(subject)
-              .forwardToHttpUrl(uploadUrl)
+              .forwardToHttp(uploadUrl)
               .mustBeLoggedIn();
+
           } else {
             bus.subscribe(subject)
-              .forwardToHttpUrl(uploadUrl);
+              .forwardToHttp(uploadUrl);
           }
+
+          bus.subscribe(`${conf.serviceName}.get-signed-url`, require("./lib/get-signed-url"));
         });
     };
 
