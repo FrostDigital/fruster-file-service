@@ -4,7 +4,7 @@ module.exports = {
   bus: parseArray(process.env.BUS) || ['nats://localhost:4222'],
 
   // HTTP port
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 3410,
 
   // Name of S3 bucket
   s3Bucket: process.env.S3_BUCKET || 'fruster-uploads',
