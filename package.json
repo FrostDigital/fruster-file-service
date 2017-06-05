@@ -11,7 +11,7 @@
     "body-parser": "~1.15.2",
     "express": "~4.14.0",
     "fruster-bus": "0.1.11",
-    "fruster-health": "0.0.7",
+    "fruster-health": "0.0.9",
     "fruster-log": "0.0.7",
     "mime-types": "^2.1.12",
     "ms": "^0.7.2",
