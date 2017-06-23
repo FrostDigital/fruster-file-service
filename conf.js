@@ -4,7 +4,7 @@ module.exports = {
   bus: parseArray(process.env.BUS) || ['nats://localhost:4222'],
 
   // HTTP port
-  port: process.env.PORT || 3410,
+  port: getPort(),
 
   // Name of S3 bucket
   s3Bucket: process.env.S3_BUCKET || 'fruster-uploads',
@@ -24,10 +24,10 @@ module.exports = {
 
   serviceName: process.env.SERVICE_NAME || "file-service",
 
-  mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false")
-};
+  mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
-module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.DEIS_APP + '.' + process.env.DEIS_APP : 'http://localhost:' + module.exports.port;
+  serviceHttpUrl: getServiceHttpUrl()
+};
 
 function parseArray(str) {
   if (str) {
@@ -38,4 +38,21 @@ function parseArray(str) {
 
 function parseBool(str) {
   return str == "true" || parseInt(str) == 1;
+}
+
+function getPort() {
+  return process.env.PORT || 3410;
+}
+
+function getServiceHttpUrl() {
+
+  if(process.env.DEIS_APP) {
+    return `http://${process.env.DEIS_APP}.${process.env.DEIS_APP}`;
+  }
+
+  if(process.env.DOCKER_HOSTNAME) {
+    return `http://${process.env.DOCKER_HOSTNAME}:${getPort()}`;
+  }
+
+  return `http://localhost:${getPort()}`;
 }
