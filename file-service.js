@@ -36,9 +36,7 @@ app.post("/upload", upload.single("file"), function (req, res) {
   // The original bus message is passed as string in header "data"
   let busMessage = parseBusMessage(req.headers.data);
 
-  res
-    .status(201)
-    .json({
+  const respBody = {
       status: 201,      
       reqId: busMessage.reqId,
       transactionId: busMessage.transactionId,
@@ -49,7 +47,13 @@ app.post("/upload", upload.single("file"), function (req, res) {
         mimeType: req.file.mimetype,
         size: req.file.size
       }
-    });
+  };
+
+  log.silly(respBody);
+
+  res
+    .status(201)
+    .json(respBody);
 });
 
 app.use(function (err, req, res, next) { // Do not remove `next`, express will break!
