@@ -35,9 +35,6 @@ configExports.serviceHttpUrl = "http://localhost:" + configExports.port;
 
 module.exports = configExports;
 
-console.log("\n");
-console.log(require("util").inspect(module.exports.serviceHttpUrl, null, null, true));
-console.log("\n");
 
 /**
  * @param {String} str - string to parse to array 
