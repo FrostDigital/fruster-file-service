@@ -6,41 +6,40 @@ const conf = require("../conf");
 
 describe("Get signed url", () => {
 
-	let httpPort = Math.floor(Math.random() * 6000 + 2000);
-	let baseUri = `http://127.0.0.1:${httpPort}`;
+	const httpPort = Math.floor(Math.random() * 6000 + 2000);
+	const baseUri = `http://127.0.0.1:${httpPort}`;
 
 	testUtils.startBeforeAll({
+		mockNats: true,
 		service: (connection) => fileService.start(connection.natsUrl, httpPort),
 		bus: bus
 	});
 
 
-	it("should get signed url", (done) => {
+	it("should get signed url", async (done) => {
 
-		bus.request(`${conf.serviceName}.get-signed-url`, {
-				data: {
-					file: "foo/bar"
-				}
-			})
-			.then(resp => {
-				expect(resp.data.url).toMatch("https://");
-				expect(resp.data.url).toMatch("Signature=");
-				done();
-			});
+		const resp = await bus.request(`${conf.serviceName}.get-signed-url`, {
+			data: {
+				file: "foo/bar"
+			}
+		});
+
+		expect(resp.data.url).toMatch("https://");
+		expect(resp.data.url).toMatch("Signature=");
+		done();
 
 	});
 
-	it("should remove first slash if set in file", (done) => {
+	it("should remove first slash if set in file", async (done) => {
 
-		bus.request(`${conf.serviceName}.get-signed-url`, {
-				data: {
-					file: "/foo/bar"
-				}
-			})
-			.then(resp => {
-				expect(resp.data.url).not.toMatch("//foo/bar");				
-				done();
-			});
+		const resp = await bus.request(`${conf.serviceName}.get-signed-url`, {
+			data: {
+				file: "/foo/bar"
+			}
+		});
+
+		expect(resp.data.url).not.toMatch("//foo/bar");
+		done();
 
 	});
 

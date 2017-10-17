@@ -1,41 +1,57 @@
-module.exports = {
-  // NATS servers, set multiple if using cluster
-  // Example: `['nats://10.23.45.1:4222', 'nats://10.23.41.8:4222']`
-  bus: parseArray(process.env.BUS) || ['nats://localhost:4222'],
+const configExports = {
+    // NATS servers, set multiple if using cluster
+    // Example: `["nats://10.23.45.1:4222", "nats://10.23.41.8:4222"]`
+    bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
 
-  // HTTP port
-  port: process.env.PORT || 3410,
+    // HTTP port
+    port: process.env.PORT || 3410,
 
-  // Name of S3 bucket
-  s3Bucket: process.env.S3_BUCKET || 'fruster-uploads',
+    // Name of S3 bucket
+    // s3Bucket: process.env.S3_BUCKET || "fruster-uploads", // TODO: change this 
+    s3Bucket: process.env.S3_BUCKET || "profile-image-uploads.horseflow.se", // TODO: change this 
 
-  // AWS Access key id
-  awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAJPEXVPNKCC2H35AQ",
+    // AWS Access key id
+    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAJPEXVPNKCC2H35AQ",
 
-  // AWS Secret access key
-  awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET || "0KK41oXRPZItRrhuwh+Sd+cfq2EntJXN4UHZpNrq",
+    // AWS Secret access key
+    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET || "0KK41oXRPZItRrhuwh+Sd+cfq2EntJXN4UHZpNrq",
 
-  // ACL for uploaded files, defaults to public-read which will make
-  // uploaded files public
-  s3Acl: process.env.S3_ACL || 'public-read',
+    // ACL for uploaded files, defaults to public-read which will make
+    // uploaded files public
+    s3Acl: process.env.S3_ACL || "public-read",
 
-  // Max file size of uploaded files in mb 
-  maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
+    // Max file size of uploaded files in mb 
+    maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
 
-  serviceName: process.env.SERVICE_NAME || "file-service",
+    serviceName: process.env.SERVICE_NAME || "file-service",
 
-  mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false")
+    mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
+
+    imageBaseUri: "https://s3-eu-west-1.amazonaws.com/profile-image-uploads.horseflow.se/" //TODO: change this
 }
 
-module.exports.serviceHttpUrl = process.env.HOSTNAME ? 'http://' + process.env.DEIS_APP + '.' + process.env.DEIS_APP : 'http://localhost:' + module.exports.port;
+// configExports.serviceHttpUrl = process.env.HOSTNAME ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port; //TODO: CHange this
+configExports.serviceHttpUrl = "http://localhost:" + configExports.port;
 
+module.exports = configExports;
+
+console.log("\n");
+console.log(require("util").inspect(module.exports.serviceHttpUrl, null, null, true));
+console.log("\n");
+
+/**
+ * @param {String} str - string to parse to array 
+ */
 function parseArray(str) {
-  if (str) {
-    return str.split(',');
-  }
-  return null;
+    if (str) {
+        return str.split(",");
+    }
+    return null;
 }
 
+/**
+ * @param {String} str - string to parse to boolean
+ */
 function parseBool(str) {
-  return str == "true" || parseInt(str) == 1;
+    return str == "true" || parseInt(str) == 1;
 }

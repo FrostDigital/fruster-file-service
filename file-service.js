@@ -7,108 +7,120 @@ const http = require("http");
 const app = express();
 const conf = require("./conf");
 const upload = require("./upload-config");
+const uploadResizedImage = require("./upload-resized-image-config");
 const dateStarted = new Date();
+const utils = require("./lib/util/utils");
+const constants = require("./lib/constants");
 
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(bodyParser.json({
-  limit: conf.maxFileSize + "mb"
-}));
+const InMemoryImageCacheRepo = require("./lib/repo/InMemoryImageCacheRepo");
+const UploadFileHandler = require("./lib/UploadFileHandler");
+const GetSignedUrlHandler = require("./lib/GetSignedUrlHandler");
+const GetImageHandler = require("./lib/GetImageHandler");
 
-app.get("/health", function (req, res) {
-  res.json({
-    status: "Alive since " + dateStarted
-  });
-});
 
-app.post("/upload", upload.single("file"), function (req, res) {
-  if (req.fileUploadError) {
-    return sendError(res, req.fileUploadError);
-  }
+/**
+ * @param {String} busAddress - nats bus address
+ * @param {Number} httpServerPort - http server port
+ */
+function start(busAddress, httpServerPort) {
 
-  if (!req.file) {
-    return sendError(res, errors.fileNotProvided());
-  }
-  
-  log.debug("Uploaded file", req.file.originalname, "->", req.file.location);
+    const startHttpServer = new Promise((resolve, reject) => {
 
-  // The original bus message is passed as string in header "data"
-  let busMessage = parseBusMessage(req.headers.data);
+        http.createServer(app).listen(httpServerPort)
+            .on("error", reject)
+            .on("listening", () => {
 
-  const respBody = {
-      status: 201,      
-      reqId: busMessage.reqId,
-      transactionId: busMessage.transactionId,
-      data: {
-        url: req.file.location,
-        key: req.file.key,
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        size: req.file.size
-      }
-  };
+                app.use(bodyParser.urlencoded({
+                    extended: false
+                }));
+                app.use(bodyParser.json({
+                    limit: conf.maxFileSize + "mb"
+                }));
 
-  log.silly(respBody);
+                registerHttpEndpoints();
 
-  res
-    .status(201)
-    .json(respBody);
-});
+                app.use((err, req, res, next) => { // Do not remove `next`, express will break!
 
-app.use(function (err, req, res, next) { // Do not remove `next`, express will break!
-  if (err.code == "LIMIT_FILE_SIZE") {
-    return sendError(res, errors.fileTooLarge(conf.maxFileSize));
-  } else {
-    return sendError(res, errors.unknownError(err));
-  }
-});
+                    if (err.code == "LIMIT_FILE_SIZE") {
+                        return utils.sendError(res, errors.fileTooLarge(conf.maxFileSize));
+                    } else {
+                        return utils.sendError(res, errors.unknownError(err));
+                    }
 
-function sendError(res, error) {
-  res
-    .status(error.status)
-    .json(error);
+                });
+
+                resolve();
+            });
+
+    });
+
+    const connectToBus = async () => {
+        await bus.connect(busAddress);
+        registerBusEndpoints();
+    }
+
+    return startHttpServer.then(connectToBus);
 }
 
-function parseBusMessage(str) {
-  if(!str) {
-    return {};
-  }
-  return JSON.parse(str);
+function registerBusEndpoints() {
+    const getSignedUrl = new GetSignedUrlHandler();
+
+    bus.subscribe({
+        subject: constants.endpoints.http.bus.HEALTH,
+        forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.HEALTH}`
+    });
+
+    bus.subscribe({
+        subject: constants.endpoints.http.bus.UPLOAD_FILE,
+        forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.UPLOAD_FILE}`,
+        mustBeLoggedIn: conf.mustBeLoggedIn
+    });
+
+    bus.subscribe(constants.endpoints.http.bus.GET_SIGNED_URL, (req) => getSignedUrl.handle(req));
+
+}
+
+function registerHttpEndpoints() {
+    const inMemoryImageCacheRepo = new InMemoryImageCacheRepo();
+    const uploadFileHandler = new UploadFileHandler();
+    const getImageHandler = new GetImageHandler(inMemoryImageCacheRepo);
+
+    app.post(constants.endpoints.http.UPLOAD_FILE, upload.single("file"), async (req, res) => {
+        try {
+            const resp = await uploadFileHandler.handle(req);
+
+            res.status(resp.status).json(resp);
+        } catch (err) {
+            return utils.sendError(res, errors.fileNotProvided());
+        }
+    });
+
+    app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
+        try {
+            const resp = await uploadFileHandler.handle(req);
+
+            res.status(resp.status).json(resp);
+        } catch (err) {
+            return utils.sendError(res, errors.fileNotProvided());
+        }
+    });
+
+    app.get(constants.endpoints.http.GET_IMAGE, async (req, res) => {
+        try {
+            await getImageHandler.handle(req, res);
+        } catch (err) {
+            res.end(JSON.stringify(err));
+        }
+    });
+
+    app.get(constants.endpoints.http.HEALTH, (req, res) => {
+        res.json({
+            status: "Alive since " + dateStarted
+        });
+    });
+
 }
 
 module.exports = {
-  start: function (busAddress, httpServerPort) {
-    var startHttpServer = new Promise(function (resolve, reject) {
-      http.createServer(app)
-        .listen(httpServerPort)
-        .on("error", reject)
-        .on("listening", resolve);
-    });
-
-    let connectToBus = () => {
-      return bus.connect(busAddress)
-        .then(() =>  {          
-          
-          bus.subscribe("http.get." + conf.serviceName + ".health").forwardToHttp(conf.serviceHttpUrl + "/health");          
-
-          const subject = "http.post." + conf.serviceName + ".upload";
-          const uploadUrl = conf.serviceHttpUrl + "/upload";
-
-          if (conf.mustBeLoggedIn) {
-            bus.subscribe(subject)
-              .forwardToHttp(uploadUrl)
-              .mustBeLoggedIn();
-
-          } else {
-            bus.subscribe(subject)
-              .forwardToHttp(uploadUrl);
-          }
-
-          bus.subscribe(`${conf.serviceName}.get-signed-url`, require("./lib/get-signed-url"));
-        });
-    };
-
-    return startHttpServer.then(connectToBus);
-  }
+    start
 };
