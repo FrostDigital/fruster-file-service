@@ -17,9 +17,12 @@ const UploadFileHandler = require("./lib/UploadFileHandler");
 const GetSignedUrlHandler = require("./lib/GetSignedUrlHandler");
 const GetImageHandler = require("./lib/GetImageHandler");
 
-// TODO :https://s3-eu-west-1.amazonaws.com/profile-image-uploads.horseflow.se/7cbd880e-4957-4285-a368-2f09ff19b054.jpeg
-// TODO: http://localhost:3410/image/7cbd880e-4957-4285-a368-2f09ff19b054.jpeg?height=210&width=2
 
+module.exports = {
+
+    start
+
+};
 
 /**
  * @param {String} busAddress - nats bus address
@@ -123,7 +126,3 @@ function registerHttpEndpoints() {
     });
 
 }
-
-module.exports = {
-    start
-};

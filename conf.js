@@ -1,4 +1,5 @@
 const configExports = {
+
     // NATS servers, set multiple if using cluster
     // Example: `["nats://10.23.45.1:4222", "nats://10.23.41.8:4222"]`
     bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
@@ -7,8 +8,7 @@ const configExports = {
     port: process.env.PORT || 3410,
 
     // Name of S3 bucket
-    // s3Bucket: process.env.S3_BUCKET || "fruster-uploads", // TODO: change this 
-    s3Bucket: process.env.S3_BUCKET || "profile-image-uploads.horseflow.se", // TODO: change this 
+    s3Bucket: process.env.S3_BUCKET || "fruster-uploads",
 
     // AWS Access key id
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAJPEXVPNKCC2H35AQ",
@@ -23,14 +23,24 @@ const configExports = {
     // Max file size of uploaded files in mb 
     maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
 
+    // Name of service to use for all bus subjects
     serviceName: process.env.SERVICE_NAME || "file-service",
 
+    // Whether or not you have to be logged in to upload image
     mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
-    imageBaseUri: "https://s3-eu-west-1.amazonaws.com/profile-image-uploads.horseflow.se/" //TODO: change this
+    // Whether or not to proxy images uploaded
+    proxyImages: parseBool(process.env.PROXY_IMAGES || "true")
+
 }
 
-// configExports.serviceHttpUrl = process.env.HOSTNAME ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port; //TODO: CHange this
+// Image base uri for where images are saved in aws 
+configExports.imageBaseUri = process.env.AWS_IMAGE_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + configExports.s3Bucket;
+
+// Image proxy uri to be returned for proxied images
+configExports.proxyImageUrl = process.env.PROXY_IMAGE_URL || "http://localhost:" + configExports.port;
+
+// configExports.serviceHttpUrl = process.env.HOSTNAME ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port; //TODO: Change this
 configExports.serviceHttpUrl = "http://localhost:" + configExports.port;
 
 module.exports = configExports;

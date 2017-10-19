@@ -31,6 +31,11 @@ module.exports = multer({
             });
         },
         key: (req, file, cb) => {
+            const indexOfStart = file.originalname.indexOf("{{");
+            const indexOfEnd = file.originalname.indexOf("}}");
+
+            file.originalname = file.originalname.replace(file.originalname.substring(indexOfStart, 13 + indexOfEnd), "")
+
             cb(null, file.originalname);
         }
     })
