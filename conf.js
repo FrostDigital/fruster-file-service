@@ -30,7 +30,7 @@ const configExports = {
     mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
     // Whether or not to proxy images uploaded
-    proxyImages: parseBool(process.env.PROXY_IMAGES || "true")
+    proxyImages: parseBool(process.env.PROXY_IMAGES || "false")
 
 }
 
@@ -40,8 +40,7 @@ configExports.imageBaseUri = process.env.AWS_IMAGE_BASE_URI || "https://s3-eu-we
 // Image proxy uri to be returned for proxied images
 configExports.proxyImageUrl = process.env.PROXY_IMAGE_URL || "http://localhost:" + configExports.port;
 
-// configExports.serviceHttpUrl = process.env.HOSTNAME ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port; //TODO: Change this
-configExports.serviceHttpUrl = "http://localhost:" + configExports.port;
+configExports.serviceHttpUrl = process.env.HOSTNAME ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port;
 
 module.exports = configExports;
 

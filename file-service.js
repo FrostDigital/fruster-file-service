@@ -28,44 +28,48 @@ module.exports = {
  * @param {String} busAddress - nats bus address
  * @param {Number} httpServerPort - http server port
  */
-function start(busAddress, httpServerPort) {
+async function start(busAddress, httpServerPort) {
 
-    const startHttpServer = new Promise((resolve, reject) => {
+    function startHttpServer() {
+        return new Promise((resolve, reject) => {
 
-        http.createServer(app).listen(httpServerPort)
-            .on("error", reject)
-            .on("listening", () => {
+            http.createServer(app).listen(httpServerPort)
+                .on("error", reject)
+                .on("listening", () => {
 
-                app.use(bodyParser.urlencoded({
-                    extended: false
-                }));
-                app.use(bodyParser.json({
-                    limit: conf.maxFileSize + "mb"
-                }));
+                    app.use(bodyParser.urlencoded({
+                        extended: false
+                    }));
+                    app.use(bodyParser.json({
+                        limit: conf.maxFileSize + "mb"
+                    }));
 
-                registerHttpEndpoints();
+                    registerHttpEndpoints();
 
-                app.use((err, req, res, next) => { // Do not remove `next`, express will break!
+                    app.use((err, req, res, next) => { // Do not remove `next`, express will break!
 
-                    if (err.code == "LIMIT_FILE_SIZE") {
-                        return utils.sendError(res, errors.fileTooLarge(conf.maxFileSize));
-                    } else {
-                        return utils.sendError(res, errors.unknownError(err));
-                    }
+                        if (err.code == "LIMIT_FILE_SIZE") {
+                            return utils.sendError(res, errors.fileTooLarge(conf.maxFileSize));
+                        } else {
+                            return utils.sendError(res, errors.unknownError(err));
+                        }
 
+                    });
+
+                    resolve();
                 });
 
-                resolve();
-            });
-
-    });
+        });
+    }
 
     const connectToBus = async () => {
         await bus.connect(busAddress);
         registerBusEndpoints();
     }
 
-    return startHttpServer.then(connectToBus);
+    await startHttpServer();
+    await connectToBus();
+    log.debug("Hello from fruster-file-service");
 }
 
 function registerBusEndpoints() {
