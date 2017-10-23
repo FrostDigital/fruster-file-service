@@ -30,7 +30,9 @@ const configExports = {
     mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
     // Whether or not to proxy images uploaded
-    proxyImages: parseBool(process.env.PROXY_IMAGES || "false")
+    proxyImages: parseBool(process.env.PROXY_IMAGES || "false"),
+
+    maxImageUploadRetries: Number(process.env.MAX_IMAGE_UPLOAD_RETRIES || 3)
 
 }
 

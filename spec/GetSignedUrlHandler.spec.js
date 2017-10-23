@@ -3,6 +3,8 @@ const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
 const fileService = require("../file-service");
 const conf = require("../conf");
+const constants = require("../lib/constants");
+
 
 describe("Get signed url", () => {
 
@@ -18,7 +20,7 @@ describe("Get signed url", () => {
 
 	it("should get signed url", async (done) => {
 
-		const resp = await bus.request(`${conf.serviceName}.get-signed-url`, {
+		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
 			data: {
 				file: "foo/bar"
 			}
@@ -32,7 +34,7 @@ describe("Get signed url", () => {
 
 	it("should remove first slash if set in file", async (done) => {
 
-		const resp = await bus.request(`${conf.serviceName}.get-signed-url`, {
+		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
 			data: {
 				file: "/foo/bar"
 			}

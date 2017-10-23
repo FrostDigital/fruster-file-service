@@ -1,41 +1,209 @@
 const bus = require("fruster-bus");
+const log = require("fruster-log");
 const testUtils = require("fruster-test-utils");
 const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
 const conf = require("../conf");
+const confBackup = Object.assign({}, conf);
+const constants = require("../lib/constants");
+const sharp = require("sharp");
+const InMemoryImageCacheRepo = require("../lib/repo/InMemoryImageCacheRepo");
 
 
-fdescribe("GetImageHandler", () => {
+describe("GetImageHandler", () => {
 
-    const httpPort = Math.floor(Math.random() * 6000 + 2000);
-    const baseUri = `http://127.0.0.1:${httpPort}`;
+    let httpPort;
+    let baseUri;
 
     afterEach((done) => {
-        conf.proxyImages = false;
+        conf.proxyImages = confBackup.proxyImages;
+        conf.proxyImageUrl = confBackup.proxyImageUrl;
+        conf.serviceHttpUrl = confBackup.serviceHttpUrl;
+
+        specUtils.removeFilesInDirectory(constants.temporaryImageLocation);
+
         done();
     });
 
-    testUtils.startBeforeAll({
+    testUtils.startBeforeEach({
         mockNats: true,
-        service: (connection) => fileService.start(connection.natsUrl, httpPort),
+        service: async (connection) => {
+
+            httpPort = Math.floor(Math.random() * 6000 + 2000);
+            baseUri = `http://127.0.0.1:${httpPort}`;
+            return await fileService.start(connection.natsUrl, httpPort);
+        },
         bus: bus
     });
 
-    it("hello", async (done) => {
+    async function setupImageUrl() {
+        const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "tiny.jpg");
+        return response.body.data.url;
+    }
+
+    it("should be possible to get proxied images", async (done) => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
 
-        specUtils.post(baseUri, "/upload", "tiny.jpg", async (error, response, body) => {
+        try {
+            const imageResponse = await specUtils.get(await setupImageUrl());
 
-            const image = await specUtils.get(body.data.url);
+            expect(imageResponse.body).toBeDefined("image should be get");
+            expect(imageResponse.body.length).toBe(7792, "image.length");
 
-            //TODO: 
-            console.log("\n");
-            console.log(require("util").inspect(image, null, null, true));
-            console.log("\n");
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
+    });
+
+    it("should be possible to scale image", async (done) => {
+
+        conf.proxyImages = true;
+        conf.proxyImageUrl = baseUri;
+        conf.serviceHttpUrl = baseUri;
+
+        const smallHeight = 3;
+        const bigHeight = 100;
+        const bigWidth = 101;
+
+        try {
+            const url = await setupImageUrl();
+            const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
+            const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
+
+            expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
+            expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+
+            expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
+            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
+
+            setTimeout(async () => {
+
+                try {
+                    /*
+                     * Since we do not wait for rescaled image to be uploaded before sending them back to user 
+                     * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+                     */
+                    const urlSplits = url.split("/");
+                    const imageName = urlSplits[urlSplits.length - 1];
+                    const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
+                    const cachedUrlBigImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: bigHeight, width: bigWidth })];
+
+                    expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
+                    expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
+                    expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
+                    expect(cachedUrlBigImage).toBeDefined("cachedUrlBigImage");
+                    expect(cachedUrlBigImage).toContain(`h-${bigHeight}`, "cachedUrlBigImage");
+                    expect(cachedUrlBigImage).toContain(`w-${bigWidth}`, "cachedUrlBigImage");
+
+                    done();
+                } catch (err) {
+                    log.error(err);
+                    done.fail();
+                }
+
+            }, 2000);
+
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
+    });
+
+    it("should return scaled image even if it wasn't possible to upload to s3", async (done) => {
+
+        conf.proxyImages = true;
+        conf.proxyImageUrl = baseUri;
+
+        const smallHeight = 3;
+        const bigHeight = 100;
+        const bigWidth = 101;
+
+        try {
+            const url = await setupImageUrl();
+            const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
+            const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
+
+            expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
+            expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+
+            expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
+            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
+
+            setTimeout(async () => {
+                try {
+                    /*
+                     * Since we do not wait for rescaled image to be uploaded before sending them back to user 
+                     * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+                     */
+                    const urlSplits = url.split("/");
+                    const imageName = urlSplits[urlSplits.length - 1];
+                    const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName];
+                    const cachedUrlBigImage = inMemoryRepoCacheData[imageName];
+
+                    expect(cachedUrlSmallImage).toBeUndefined("cachedUrlSmallImage");
+                    expect(cachedUrlBigImage).toBeUndefined("cachedUrlBigImage");
+
+                    done();
+
+                } catch (err) {
+                    log.error(err);
+                    done.fail();
+                }
+
+            }, 1000);
+
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
+    });
+
+    it("should return 404 if image does not exist", async (done) => {
+
+        conf.proxyImages = true;
+        conf.proxyImageUrl = baseUri;
+
+        try {
+            const url = conf.proxyImageUrl + "olabandola.jpg";
+            const imageResponse = await specUtils.get(url);
+
+            expect(imageResponse.statusCode).toBeDefined(404);
+
+            done();
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
+    });
+
+    it("should return error if image does not exist when using rescaling query", async (done) => {
+
+        conf.proxyImages = true;
+        conf.proxyImageUrl = baseUri;
+
+        try {
+            const url = conf.proxyImageUrl + "olabandola.jpg?height=200";
+            const imageResponse = await specUtils.get(url);
+
+            expect(imageResponse.statusCode).toBeDefined(404);
+
+            done();
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
 
     });
 

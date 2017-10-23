@@ -5,8 +5,11 @@ const fs = require("fs");
 const conf = require("../conf");
 const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
+const log = require("fruster-log");
 const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
+const constants = require("../lib/constants");
+
 
 // TODO: this test should be named UploadFileHandler.spec.js but for some reason it fails if it does 🤔
 describe("file-upload", () => {
@@ -26,65 +29,111 @@ describe("file-upload", () => {
         bus: bus
     });
 
-    it("should upload file to s3 bucket", (done) => {
-        specUtils.post(baseUri, "/upload", "trump.jpg", (error, response, body) => {
-            expect(response.statusCode).toBe(201);
-            expect(body.data.url).toContain("https://fruster-uploads");
-            expect(body.data.originalName).toBe("trump.jpg");
-            expect(body.data.key).toContain(".jpg");
+    it("should upload file to s3 bucket", async (done) => {
+
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "trump.jpg");
+
+            expect(response.statusCode).toBe(201, "response.statusCode");
+            expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
+            expect(response.body.data.originalName).toBe("trump.jpg", "response.body.data.originalName");
+            expect(response.body.data.key).toContain(".jpg", "response.body.data.key");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
     });
 
-    it("should upload file to s3 bucket and proxy url if proxyImages config is set to true", (done) => {
+    it("should upload file to s3 bucket and proxy url if proxyImages config is set to true", async (done) => {
         conf.proxyImages = true;
 
-        specUtils.post(baseUri, "/upload", "trump.jpg", (error, response, body) => {
-            expect(response.statusCode).toBe(201);
-            expect(body.data.url).toContain(conf.proxyImageUrl);
-            expect(body.data.originalName).toBe("trump.jpg");
-            expect(body.data.key).toContain(".jpg");
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "trump.jpg");
+
+            expect(response.statusCode).toBe(201, "response.statusCode");
+            expect(response.body.data.url).toContain(conf.proxyImageUrl, "response.body.data.url");
+            expect(response.body.data.originalName).toBe("trump.jpg", "response.body.data.originalName");
+            expect(response.body.data.key).toContain(".jpg", "response.body.data.key");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
     });
 
-    it("should upload file to s3 bucket and keep file extension from uploaded file", (done) => {
-        specUtils.post(baseUri, "/upload", "random-file-format.fit", (error, response, body) => {
-            expect(response.statusCode).toBe(201);
-            expect(body.data.url).toContain("https://fruster-uploads");
-            expect(body.data.originalName).toBe("random-file-format.fit");
-            expect(body.data.key).toContain(".fit");
+    it("should upload file to s3 bucket and keep file extension from uploaded file", async (done) => {
+
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "random-file-format.fit");
+
+            expect(response.statusCode).toBe(201, "response.statusCode");
+            expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
+            expect(response.body.data.originalName).toBe("random-file-format.fit", "response.body.data.originalName");
+            expect(response.body.data.key).toContain(".fit", "response.body.data.key");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
     });
 
-    it("should upload file to s3 bucket and set file extension from mimetype if no extension is set in file name", (done) => {
-        specUtils.post(baseUri, "/upload", "file-without-extension", (error, response, body) => {
-            expect(response.statusCode).toBe(201);
-            expect(body.data.url).toContain("https://fruster-uploads");
-            expect(body.data.originalName).toBe("file-without-extension");
-            expect(body.data.key).toContain(".bin");
+    it("should upload file to s3 bucket and set file extension from mimetype if no extension is set in file name", async (done) => {
+
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "file-without-extension");
+
+            expect(response.statusCode).toBe(201, "response.statusCode");
+            expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
+            expect(response.body.data.originalName).toBe("file-without-extension", "response.body.data.originalName");
+            expect(response.body.data.key).toContain(".bin", "response.body.data.key");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
     });
 
-    it("should fail if no file was provided", (done) => {
-        specUtils.post(baseUri, "/upload", null, (error, response, body) => {
-            expect(response.statusCode).toBe(400);
-            expect(body.status).toBe(400);
-            expect(body.error.title).toBe("No file provided");
+    it("should fail if no file was provided", async (done) => {
+
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, null);
+
+            expect(response.statusCode).toBe(400, "response.statusCode");
+            expect(response.body.status).toBe(400, "response.body.status");
+            expect(response.body.error.title).toBe("No file provided", "response.body.error.title");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
     });
 
-    it("should fail to upload a large file", (done) => {
-        specUtils.post(baseUri, "/upload", "large-image.jpg", (error, response, body) => {
-            expect(response.statusCode).toBe(400);
-            expect(body.status).toBe(400);
-            expect(body.error.title).toBe("File too large");
-            expect(body.error.detail).toBeDefined();
+    it("should fail to upload a large file", async (done) => {
+
+        try {
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "large-image.jpg");
+
+            expect(response.statusCode).toBe(400, "response.statusCode");
+            expect(response.body.status).toBe(400, "response.body.status");
+            expect(response.body.error.title).toBe("File too large", "response.body.error.title");
+            expect(response.body.error.detail).toBeDefined("response.body.error.detail");
+
             done();
-        });
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+
     });
 
 });

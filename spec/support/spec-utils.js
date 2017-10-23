@@ -1,10 +1,14 @@
 const request = require("request");
 const fs = require("fs");
+const log = require("fruster-log");
+const Request = require("../../node_modules/express/lib/request.js");
+
 
 module.exports = {
 
     post,
-    get
+    get,
+    removeFilesInDirectory
 
 };
 
@@ -12,10 +16,11 @@ module.exports = {
 /**
  * @param {String} baseUri
  * @param {String} path 
- * @param {String} imageNames 
- * @param {Function} cb 
+ * @param {String|Array<String>} imageNames 
+ * 
+ * @return {Promise}
  */
-function post(baseUri, path, imageNames, cb) {
+async function post(baseUri, path, imageNames) {
     const formData = {};
 
     if (imageNames) {
@@ -26,12 +31,20 @@ function post(baseUri, path, imageNames, cb) {
         }
     }
 
-    const postRequest = request.post({
-        url: baseUri + path,
-        formData: formData
-    }, (err, resp, body) => {
-        postRequest.end();
-        cb(err, resp, body ? JSON.parse(body) : {});
+    return new Promise((resolve, reject) => {
+        const postRequest = request.post({
+            url: baseUri + path,
+            formData: formData
+        }, (err, resp, body) => {
+            postRequest.end();
+
+            if (err)
+                reject(err);
+            else {
+                resp.body = body ? JSON.parse(body) : {};
+                resolve(resp);
+            }
+        });
     });
 }
 
@@ -39,6 +52,8 @@ function post(baseUri, path, imageNames, cb) {
 /**
  * @param {String} baseUri
  * @param {String=} path 
+ * 
+ * @return {Promise}
  */
 async function get(baseUri, path) {
     const url = !!path ? baseUri + path : baseUri;
@@ -52,10 +67,45 @@ async function get(baseUri, path) {
 
             if (err)
                 reject(err);
-            else
-                resolve(body ? JSON.parse(body) : {});
+            else {
+                try {
+                    resp.body = body ? JSON.parse(body) : {};
+                    resolve(resp);
+                } catch (err) {
+                    resolve(resp);
+                }
+            }
         });
     });
 
 }
 
+/**
+ * @param {String} dirPath 
+ */
+function removeFilesInDirectory(dirPath) {
+    let files;
+
+    try {
+        files = fs.readdirSync(dirPath);
+    }
+    catch (e) {
+        return;
+    }
+
+    if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+            let filePath = dirPath + '/' + files[i];
+
+            if (fs.statSync(filePath).isFile()) {
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    log.error(err);
+                }
+            } else {
+                removeFilesInDirectory(filePath);
+            }
+        }
+    }
+};

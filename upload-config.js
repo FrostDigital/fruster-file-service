@@ -6,6 +6,9 @@ const mime = require('mime-types');
 const conf = require('./conf');
 const errors = require('./errors');
 
+/**
+ * Config for files.
+ */
 const bucket = new aws.S3({
     accessKeyId: conf.awsAccessKeyId,
     secretAccessKey: conf.awsSecretAccessKey,
@@ -25,12 +28,12 @@ module.exports = multer({
         bucket: conf.s3Bucket,
         acl: conf.s3Acl,
         contentType: multerS3.AUTO_CONTENT_TYPE,
-        metadata:   (req, file, cb) =>{
+        metadata: (req, file, cb) => {
             cb(null, {
                 fieldName: file.fieldname
             });
         },
-        key:   (req, file, cb) =>{
+        key: (req, file, cb) => {
             const fileSplit = file.originalname.split('.');
             const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length - 1] : mime.extension(file.mimetype);
             cb(null, uuid.v4() + '.' + fileExt);

@@ -6,6 +6,10 @@ const mime = require('mime-types');
 const conf = require('./conf');
 const errors = require('./errors');
 
+/**
+ * Image config for rescaled images. 
+ * Uses original file name when uploading. 
+ */
 const bucket = new aws.S3({
     accessKeyId: conf.awsAccessKeyId,
     secretAccessKey: conf.awsSecretAccessKey,
