@@ -10,7 +10,7 @@ const http = require("http");
 const app = express();
 const conf = require("./conf");
 const upload = require("./upload-config");
-const uploadRescaledImage = require("./upload-rescaled-image-config");
+const uploadResizedImage = require("./upload-resized-image-config");
 const dateStarted = new Date();
 const utils = require("./lib/util/utils");
 const constants = require("./lib/constants");
@@ -130,7 +130,7 @@ async function start(busAddress, httpServerPort) {
             }
         });
 
-        app.post(constants.endpoints.http.UPLOAD_RESCALED_IMAGE, uploadRescaledImage.single("file"), async (req, res) => {
+        app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
             try {
                 const resp = await uploadFileHandler.handle(req);
 

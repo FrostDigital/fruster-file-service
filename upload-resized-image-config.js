@@ -7,7 +7,7 @@ const conf = require('./conf');
 const errors = require('./errors');
 
 /**
- * Image config for rescaled images. 
+ * Image config for resized images. 
  * Uses original file name when uploading. 
  */
 const bucket = new aws.S3({
