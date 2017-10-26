@@ -1,5 +1,6 @@
 const bus = require("fruster-bus");
 const log = require("fruster-log");
+const util = require("util");
 const testUtils = require("fruster-test-utils");
 const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
@@ -132,7 +133,6 @@ describe("GetImageHandler", () => {
 
             const smallImageResponse1 = await specUtils.get(`${url}?height=${smallHeight}`);
 
-
             setTimeout(async () => {
 
                 try {
@@ -157,14 +157,14 @@ describe("GetImageHandler", () => {
                     done();
                 } catch (err) {
                     log.error(err);
-                    done.fail();
+                    done.fail(util.inspect(err, null, null, true));
                 }
 
             }, 1000);
 
         } catch (err) {
             log.error(err);
-            done.fail();
+            done.fail(util.inspect(err, null, null, true));
         }
 
     });
@@ -212,7 +212,7 @@ describe("GetImageHandler", () => {
 
         } catch (err) {
             log.error(err);
-            done.fail();
+            done.fail(util.inspect(err, null, null, true));
         }
 
     });
@@ -264,7 +264,7 @@ describe("GetImageHandler", () => {
 
         } catch (err) {
             log.error(err);
-            done.fail();
+            done.fail(util.inspect(err, null, null, true));
         }
 
     });
@@ -283,7 +283,7 @@ describe("GetImageHandler", () => {
             done();
         } catch (err) {
             log.error(err);
-            done.fail();
+            done.fail(util.inspect(err, null, null, true));
         }
 
     });
@@ -302,7 +302,7 @@ describe("GetImageHandler", () => {
             done();
         } catch (err) {
             log.error(err);
-            done.fail();
+            done.fail(util.inspect(err, null, null, true));
         }
 
     });
