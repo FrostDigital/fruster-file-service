@@ -127,13 +127,11 @@ describe("GetImageHandler", () => {
 
         try {
             const url = await setupImageUrl();
-
             const smallImageResponse1 = await specUtils.get(`${url}?height=${smallHeight}`);
 
             setTimeout(async () => {
 
                 try {
-                    const smallImageResponse2 = await specUtils.get(`${url}?height=${smallHeight}`);
                     /*
                      * Since we do not wait for resized image to be uploaded before sending them back to user 
                      * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
