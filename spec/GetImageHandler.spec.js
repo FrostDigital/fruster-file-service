@@ -157,7 +157,7 @@ describe("GetImageHandler", () => {
                     done.fail(util.inspect(err, null, null, true));
                 }
 
-            }, 3000);
+            }, 5000);
 
         } catch (err) {
             log.error(err);
