@@ -114,7 +114,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 1000);
+            }, 2000);
 
         } catch (err) {
             log.error(err);
@@ -165,7 +165,7 @@ describe("GetImageHandler", () => {
                     done.fail(util.inspect(err, null, null, true));
                 }
 
-            }, 1000);
+            }, 2000);
 
         } catch (err) {
             log.error(err);
@@ -213,7 +213,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 1000);
+            }, 2000);
 
         } catch (err) {
             log.error(err);
@@ -265,7 +265,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 1000);
+            }, 2000);
 
         } catch (err) {
             log.error(err);
