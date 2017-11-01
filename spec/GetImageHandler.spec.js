@@ -115,7 +115,7 @@ describe("GetImageHandler", () => {
 
     });
 
-    it("should return image url from memory if image has been resized earlier", async (done) => {
+    xit("should return image url from memory if image has been resized earlier", async (done) => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
