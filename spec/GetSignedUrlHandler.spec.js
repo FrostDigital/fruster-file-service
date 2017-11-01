@@ -9,13 +9,14 @@ const constants = require("../lib/constants");
 describe("Get signed url", () => {
 
 	let httpPort;
-	const baseUri = `http://127.0.0.1:${httpPort}`;
+	let baseUri;
 
 	testUtils.startBeforeAll({
 		mockNats: true,
 		service: async (connection) => {
 			do {
 				httpPort = Math.floor(Math.random() * 6000 + 2000);
+				baseUri = `http://127.0.0.1:${httpPort}`;
 			} while (httpPort === 3410);
 			return await fileService.start(connection.natsUrl, httpPort);
 		},

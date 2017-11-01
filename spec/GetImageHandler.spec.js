@@ -30,9 +30,11 @@ describe("GetImageHandler", () => {
         mockNats: true,
         service: async (connection) => {
             conf.proxyImages = true;
+
             do {
                 httpPort = Math.floor(Math.random() * 6000 + 2000);
             } while (httpPort === 3410);
+
             baseUri = `http://127.0.0.1:${httpPort}`;
             return await fileService.start(connection.natsUrl, httpPort);
         },
@@ -48,6 +50,7 @@ describe("GetImageHandler", () => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
+        conf.serviceHttpUrl = baseUri;
 
         try {
             const imageResponse = await specUtils.get(await setupImageUrl());
@@ -275,6 +278,7 @@ describe("GetImageHandler", () => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
+        conf.serviceHttpUrl = baseUri;
 
         try {
             const url = conf.proxyImageUrl + "olabandola.jpg";
@@ -294,6 +298,7 @@ describe("GetImageHandler", () => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
+        conf.serviceHttpUrl = baseUri;
 
         try {
             const url = conf.proxyImageUrl + "olabandola.jpg?height=200";
