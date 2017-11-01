@@ -7,7 +7,8 @@ const conf = require('./conf');
 const errors = require('./errors');
 
 /**
- * Config for files.
+ * Image config for resized images. 
+ * Uses original file name when uploading. 
  */
 const bucket = new aws.S3({
     accessKeyId: conf.awsAccessKeyId,
@@ -34,9 +35,12 @@ module.exports = multer({
             });
         },
         key: (req, file, cb) => {
-            const fileSplit = file.originalname.split('.');
-            const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length - 1] : mime.extension(file.mimetype);
-            cb(null, uuid.v4() + '.' + fileExt);
+            const indexOfStart = file.originalname.indexOf("{{");
+            const indexOfEnd = file.originalname.indexOf("}}");
+
+            file.originalname = file.originalname.replace(file.originalname.substring(indexOfStart, 13 + indexOfEnd), "")
+
+            cb(null, file.originalname);
         }
     })
 });
