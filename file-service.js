@@ -130,15 +130,17 @@ async function start(busAddress, httpServerPort) {
             }
         });
 
-        app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
-            try {
-                const resp = await uploadFileHandler.handle(req);
+        if (conf.proxyImages) {
+            app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
+                try {
+                    const resp = await uploadFileHandler.handle(req);
 
-                res.status(resp.status).json(resp);
-            } catch (err) {
-                return utils.sendError(res, deprecatedErrors.fileNotProvided());
-            }
-        });
+                    res.status(resp.status).json(resp);
+                } catch (err) {
+                    return utils.sendError(res, deprecatedErrors.fileNotProvided());
+                }
+            });
+        }
 
         app.get(constants.endpoints.http.GET_IMAGE, async (req, res) => {
             try {

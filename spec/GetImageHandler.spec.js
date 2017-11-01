@@ -29,7 +29,7 @@ describe("GetImageHandler", () => {
     testUtils.startBeforeEach({
         mockNats: true,
         service: async (connection) => {
-
+            conf.proxyImages = true;
             httpPort = Math.floor(Math.random() * 6000 + 2000);
             baseUri = `http://127.0.0.1:${httpPort}`;
             return await fileService.start(connection.natsUrl, httpPort);
