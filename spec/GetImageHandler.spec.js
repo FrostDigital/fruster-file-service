@@ -114,7 +114,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 3000);
+            }, 5000);
 
         } catch (err) {
             log.error(err);
