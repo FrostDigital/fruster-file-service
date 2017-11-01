@@ -32,7 +32,7 @@ describe("GetImageHandler", () => {
             conf.proxyImages = true;
 
             do {
-                httpPort = Math.floor(Math.random() * 6000 + 2000);
+                httpPort = Math.floor(Math.random() * 6000 + 3000);
             } while (httpPort === 3410);
 
             baseUri = `http://127.0.0.1:${httpPort}`;
@@ -114,7 +114,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 2000);
+            }, 3000);
 
         } catch (err) {
             log.error(err);
@@ -165,7 +165,7 @@ describe("GetImageHandler", () => {
                     done.fail(util.inspect(err, null, null, true));
                 }
 
-            }, 2000);
+            }, 3000);
 
         } catch (err) {
             log.error(err);
@@ -213,7 +213,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 2000);
+            }, 3000);
 
         } catch (err) {
             log.error(err);
@@ -265,7 +265,7 @@ describe("GetImageHandler", () => {
                     done.fail();
                 }
 
-            }, 2000);
+            }, 3000);
 
         } catch (err) {
             log.error(err);
