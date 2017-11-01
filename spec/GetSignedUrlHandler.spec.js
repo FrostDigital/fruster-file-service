@@ -8,12 +8,17 @@ const constants = require("../lib/constants");
 
 describe("Get signed url", () => {
 
-	const httpPort = Math.floor(Math.random() * 6000 + 2000);
+	let httpPort;
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		service: (connection) => fileService.start(connection.natsUrl, httpPort),
+		service: async (connection) => {
+			do {
+				httpPort = Math.floor(Math.random() * 6000 + 2000);
+			} while (httpPort === 3410);
+			return await fileService.start(connection.natsUrl, httpPort);
+		},
 		bus: bus
 	});
 
