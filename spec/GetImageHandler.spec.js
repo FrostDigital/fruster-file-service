@@ -79,13 +79,9 @@ describe("GetImageHandler", () => {
         try {
             const url = await setupImageUrl();
             const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
-            const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
 
             expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
             expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
-
-            expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
-            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
 
             setTimeout(async () => {
 
@@ -99,14 +95,10 @@ describe("GetImageHandler", () => {
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
                     const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
-                    const cachedUrlBigImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: bigHeight, width: bigWidth })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
-                    expect(cachedUrlBigImage).toBeDefined("cachedUrlBigImage");
-                    expect(cachedUrlBigImage).toContain(`h-${bigHeight}`, "cachedUrlBigImage");
-                    expect(cachedUrlBigImage).toContain(`w-${bigWidth}`, "cachedUrlBigImage");
 
                     done();
                 } catch (err) {
