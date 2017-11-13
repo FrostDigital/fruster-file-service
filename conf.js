@@ -32,7 +32,9 @@ const configExports = {
     // Whether or not to proxy images uploaded
     proxyImages: parseBool(process.env.PROXY_IMAGES || "false"),
 
-    maxImageUploadRetries: Number(process.env.MAX_IMAGE_UPLOAD_RETRIES || 3)
+    maxImageUploadRetries: Number.parseInt(process.env.MAX_IMAGE_UPLOAD_RETRIES || 3),
+
+    maxQueryRescaleSize: Number.parseInt(process.env.MAX_QUERY_RESCALE_SIZE || 5000)
 
 }
 
