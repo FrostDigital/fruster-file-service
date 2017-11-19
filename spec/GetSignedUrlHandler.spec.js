@@ -59,7 +59,7 @@ describe("Get signed url", () => {
 			}
 		});
 
-		expect(resp.data.url).toMatch(`s3.amazonaws.com/foo/bar`);
+		expect(resp.data.url).toMatch(`amazonaws.com/foo/bar`);
 	
 		done();
 	});
