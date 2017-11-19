@@ -15,7 +15,7 @@
         "fruster-bus": "^0.2.10",
         "fruster-errors": "0.0.7",
         "fruster-health": "0.0.11",
-        "fruster-log": "0.0.11",
+        "fruster-log": "^0.0.14",
         "mime-types": "^2.1.16",
         "ms": "^0.7.3",
         "multer": "^1.3.0",
