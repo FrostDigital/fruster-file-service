@@ -47,8 +47,21 @@ describe("Get signed url", () => {
 		});
 
 		expect(resp.data.url).not.toMatch("//foo/bar");
+		
 		done();
+	});
 
+	it("should remove protocol and domain if full URL is set", async (done) => {
+		
+		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
+			data: {
+				file: "https://example.com/foo/bar"
+			}
+		});
+
+		expect(resp.data.url).toMatch(`amazonaws.com/foo/bar`);
+	
+		done();
 	});
 
 });
