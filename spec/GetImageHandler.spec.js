@@ -56,7 +56,7 @@ describe("GetImageHandler", () => {
             const imageResponse = await specUtils.get(await setupImageUrl());
 
             expect(imageResponse.body).toBeDefined("image should be get");
-            expect(imageResponse.body.length).toBe(7766, "image.length");
+            expect(imageResponse.body.length).toBe(7792, "image.length");
 
             done();
         } catch (err) {
@@ -230,7 +230,7 @@ describe("GetImageHandler", () => {
             expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
 
             expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
-            expect(bigImageResponse.body.length).toBe(788, "bigImageResponse.body.length");
+            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
 
             setTimeout(async () => {
                 try {
