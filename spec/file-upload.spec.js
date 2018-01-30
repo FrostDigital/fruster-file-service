@@ -30,7 +30,6 @@ describe("file-upload", () => {
     });
 
     it("should upload file to s3 bucket", async (done) => {
-
         try {
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "trump.jpg");
 
@@ -44,7 +43,6 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
-
     });
 
     it("should upload file to s3 bucket and proxy url if proxyImages config is set to true", async (done) => {
@@ -63,11 +61,9 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
-
     });
 
     it("should upload file to s3 bucket and keep file extension from uploaded file", async (done) => {
-
         try {
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "random-file-format.fit");
 
@@ -81,11 +77,9 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
-
     });
 
     it("should upload file to s3 bucket and set file extension from mimetype if no extension is set in file name", async (done) => {
-
         try {
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "file-without-extension");
 
@@ -99,11 +93,9 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
-
     });
 
     it("should fail if no file was provided", async (done) => {
-
         try {
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, null);
 
@@ -119,7 +111,6 @@ describe("file-upload", () => {
     });
 
     it("should fail to upload a large file", async (done) => {
-
         try {
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "large-image.jpg");
 
@@ -133,7 +124,6 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
-
     });
 
 });

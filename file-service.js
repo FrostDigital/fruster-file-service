@@ -14,7 +14,7 @@ const uploadResizedImage = require("./upload-resized-image-config");
 const dateStarted = new Date();
 const utils = require("./lib/util/utils");
 const constants = require("./lib/constants");
-
+const docs = require("./lib/docs");
 
 const InMemoryImageCacheRepo = require("./lib/repo/InMemoryImageCacheRepo");
 const UploadFileHandler = require("./lib/UploadFileHandler");
@@ -31,7 +31,6 @@ module.exports = {
 /**
  * @param {String} busAddress - nats bus address
  * @param {Number} httpServerPort - http server port
- * @param {Object=} inMemoryImageCache
  */
 async function start(busAddress, httpServerPort) {
     /**
@@ -87,16 +86,24 @@ async function start(busAddress, httpServerPort) {
 
         bus.subscribe({
             subject: constants.endpoints.http.bus.HEALTH,
-            forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.HEALTH}`
+            forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.HEALTH}`,
+            docs: docs.http.HEALTH
         });
 
         bus.subscribe({
             subject: constants.endpoints.http.bus.UPLOAD_FILE,
+            responseSchema: "UploadFileResponse",
             forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.UPLOAD_FILE}`,
-            mustBeLoggedIn: conf.mustBeLoggedIn
+            mustBeLoggedIn: conf.mustBeLoggedIn,
+            docs: docs.http.UPLOAD_FILE
         });
 
-        bus.subscribe(constants.endpoints.http.bus.GET_SIGNED_URL, (req) => getSignedUrl.handle(req));
+        bus.subscribe({
+            subject: constants.endpoints.service.GET_SIGNED_URL,
+            responseSchema: "GetSignedUrlResponse",
+            handle: (req) => getSignedUrl.handle(req),
+            docs: docs.service.GET_SIGNED_URL
+        });
 
     }
 
