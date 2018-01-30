@@ -1,0 +1,11 @@
+{
+    "id": "GetSignedUrlResponse",
+    "additionalProperties": false,
+    "properties": {
+        "url": {
+            "type": "string",
+            "description": "The signed url.",
+            "faker": "image.imageUrl"
+        }
+    }
+}

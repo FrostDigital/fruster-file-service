@@ -116,7 +116,6 @@ describe("GetImageHandler", () => {
     });
 
     xit("should return image url from memory if image has been resized earlier", async (done) => {
-
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
         conf.serviceHttpUrl = baseUri;
@@ -215,7 +214,6 @@ describe("GetImageHandler", () => {
     });
 
     it("should return scaled image even if it wasn't possible to upload to s3", async (done) => {
-
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
 
@@ -263,11 +261,9 @@ describe("GetImageHandler", () => {
             log.error(err);
             done.fail(util.inspect(err, null, null, true));
         }
-
     });
 
     it("should return 404 if image does not exist", async (done) => {
-
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
         conf.serviceHttpUrl = baseUri;
@@ -283,11 +279,9 @@ describe("GetImageHandler", () => {
             log.error(err);
             done.fail(util.inspect(err, null, null, true));
         }
-
     });
 
     it("should return error if image does not exist when using resizing query", async (done) => {
-
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
         conf.serviceHttpUrl = baseUri;
@@ -303,7 +297,6 @@ describe("GetImageHandler", () => {
             log.error(err);
             done.fail(util.inspect(err, null, null, true));
         }
-
     });
 
 });

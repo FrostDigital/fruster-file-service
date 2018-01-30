@@ -4,6 +4,8 @@ const bus = require("fruster-bus");
 const fileService = require("../file-service");
 const conf = require("../conf");
 const constants = require("../lib/constants");
+const uuid = require("uuid");
+const log = require("fruster-log");
 
 
 describe("Get signed url", () => {
@@ -23,45 +25,67 @@ describe("Get signed url", () => {
 		bus: bus
 	});
 
-
 	it("should get signed url", async (done) => {
+		try {
+			const resp = await bus.request({
+				subject: constants.endpoints.service.GET_SIGNED_URL,
+				skipOptionsRequest: true,
+				message: {
+					reqId: uuid.v4(),
+					data: { file: "foo/bar" }
+				}
+			});
 
-		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
-			data: {
-				file: "foo/bar"
-			}
-		});
+			expect(resp.data.url).toMatch("https://");
+			expect(resp.data.url).toMatch("Signature=");
 
-		expect(resp.data.url).toMatch("https://");
-		expect(resp.data.url).toMatch("Signature=");
-		done();
-
+			done();
+		} catch (err) {
+			log.error(err);
+			done.fail(err);
+		}
 	});
 
 	it("should remove first slash if set in file", async (done) => {
+		try {
+			const resp = await bus.request({
+				subject: constants.endpoints.service.GET_SIGNED_URL,
+				skipOptionsRequest: true,
+				message: {
+					reqId: uuid.v4(),
+					data: { file: "foo/bar" }
+				}
+			});
 
-		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
-			data: {
-				file: "/foo/bar"
-			}
-		});
+			expect(resp.data.url).not.toMatch("//foo/bar");
 
-		expect(resp.data.url).not.toMatch("//foo/bar");
-		
-		done();
+			done();
+		} catch (err) {
+			log.error(err);
+			done.fail(err);
+		}
 	});
 
 	it("should remove protocol and domain if full URL is set", async (done) => {
-		
-		const resp = await bus.request(constants.endpoints.http.bus.GET_SIGNED_URL, {
-			data: {
-				file: "https://example.com/foo/bar"
-			}
-		});
+		try {
+			const resp = await bus.request({
+				subject: constants.endpoints.service.GET_SIGNED_URL,
+				skipOptionsRequest: true,
+				message: {
+					reqId: uuid.v4(),
+					data: {
+						file: "https://example.com/foo/bar"
+					}
+				}
+			});
 
-		expect(resp.data.url).toMatch(`amazonaws.com/foo/bar`);
-	
-		done();
+			expect(resp.data.url).toMatch(`amazonaws.com/foo/bar`);
+
+			done();
+		} catch (err) {
+			log.error(err);
+			done.fail(err);
+		}
 	});
 
 });
