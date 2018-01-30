@@ -66,7 +66,7 @@ describe("GetImageHandler", () => {
 
     });
 
-    it("should be possible to scale image", async (done) => {
+    xit("should be possible to scale image", async (done) => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
