@@ -94,7 +94,9 @@ describe("GetImageHandler", () => {
                     const imageName = urlSplits[urlSplits.length - 1];
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: smallHeight
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -141,7 +143,9 @@ describe("GetImageHandler", () => {
                     const imageName = urlSplits[urlSplits.length - 1];
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: smallHeight
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -190,7 +194,9 @@ describe("GetImageHandler", () => {
                     let imageName = urlSplits[urlSplits.length - 1];
                     imageName = imageName.replace(`?height=${height}`, "");
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: height })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: height
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");

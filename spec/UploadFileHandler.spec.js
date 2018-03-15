@@ -1,5 +1,3 @@
-process.env.MAX_FILE_SIZE_MB = 0.1;
-
 const request = require("request");
 const fs = require("fs");
 const conf = require("../conf");
@@ -10,13 +8,16 @@ const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
 const constants = require("../lib/constants");
 
-
-// TODO: this test should be named UploadFileHandler.spec.js but for some reason it fails if it does 🤔
-describe("file-upload", () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+describe("UploadFileHandler", () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
+
+    beforeAll(done => {
+        conf.maxFileSize = 0.01;
+        done();
+    });
 
     afterEach((done) => {
         conf.proxyImages = false;
