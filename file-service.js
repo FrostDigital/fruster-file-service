@@ -106,6 +106,7 @@ async function start(busAddress, httpServerPort) {
 
         bus.subscribe({
             subject: constants.endpoints.service.DELETE_FILE,
+            requestSchema: "DeleteFileRequest",
             docs: docs.service.DELETE_FILE,
             handle: (req) => deleteFileHandler.handle(req)
         });
