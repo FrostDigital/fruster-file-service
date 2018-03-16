@@ -275,7 +275,7 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "olabandola.jpg";
+            const url = conf.proxyImageUrl + "/olabandola.jpg";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
@@ -293,7 +293,7 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "olabandola.jpg?height=200";
+            const url = conf.proxyImageUrl + "/olabandola.jpg?height=200";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
