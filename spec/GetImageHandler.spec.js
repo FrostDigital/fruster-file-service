@@ -233,10 +233,10 @@ describe("GetImageHandler", () => {
             const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
 
             expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
-            expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+            expect(smallImageResponse.body.length).toBe(308, "smallImageResponse.body.length");
 
             expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
-            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
+            expect(bigImageResponse.body.length).toBe(826, "bigImageResponse.body.length");
 
             setTimeout(async () => {
                 try {
