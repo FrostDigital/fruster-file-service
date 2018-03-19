@@ -94,7 +94,9 @@ describe("GetImageHandler", () => {
                     const imageName = urlSplits[urlSplits.length - 1];
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: smallHeight
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -141,7 +143,9 @@ describe("GetImageHandler", () => {
                     const imageName = urlSplits[urlSplits.length - 1];
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: smallHeight })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: smallHeight
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -190,7 +194,9 @@ describe("GetImageHandler", () => {
                     let imageName = urlSplits[urlSplits.length - 1];
                     imageName = imageName.replace(`?height=${height}`, "");
                     const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
-                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({ height: height })];
+                    const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][InMemoryImageCacheRepo._queryToString({
+                        height: height
+                    })];
 
                     expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
                     expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");
@@ -227,10 +233,10 @@ describe("GetImageHandler", () => {
             const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
 
             expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
-            expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+            expect(smallImageResponse.body.length).toBe(308, "smallImageResponse.body.length");
 
             expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
-            expect(bigImageResponse.body.length).toBe(797, "bigImageResponse.body.length");
+            expect(bigImageResponse.body.length).toBe(826, "bigImageResponse.body.length");
 
             setTimeout(async () => {
                 try {
@@ -269,7 +275,7 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "olabandola.jpg";
+            const url = conf.proxyImageUrl + "/olabandola.jpg";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
@@ -287,7 +293,7 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "olabandola.jpg?height=200";
+            const url = conf.proxyImageUrl + "/olabandola.jpg?height=200";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);

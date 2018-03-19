@@ -88,8 +88,7 @@ function removeFilesInDirectory(dirPath) {
 
     try {
         files = fs.readdirSync(dirPath);
-    }
-    catch (e) {
+    } catch (e) {
         return;
     }
 

@@ -20,12 +20,10 @@ const InMemoryImageCacheRepo = require("./lib/repo/InMemoryImageCacheRepo");
 const UploadFileHandler = require("./lib/UploadFileHandler");
 const GetSignedUrlHandler = require("./lib/GetSignedUrlHandler");
 const GetImageHandler = require("./lib/GetImageHandler");
-
+const DeleteFileHandler = require("./lib/DeleteFileHandler");
 
 module.exports = {
-
     start
-
 };
 
 /**
@@ -83,6 +81,7 @@ async function start(busAddress, httpServerPort) {
 
     function registerBusEndpoints() {
         const getSignedUrl = new GetSignedUrlHandler();
+        const deleteFileHandler = new DeleteFileHandler();
 
         bus.subscribe({
             subject: constants.endpoints.http.bus.HEALTH,
@@ -103,6 +102,13 @@ async function start(busAddress, httpServerPort) {
             responseSchema: "GetSignedUrlResponse",
             handle: (req) => getSignedUrl.handle(req),
             docs: docs.service.GET_SIGNED_URL
+        });
+
+        bus.subscribe({
+            subject: constants.endpoints.service.DELETE_FILE,
+            requestSchema: "DeleteFileRequest",
+            docs: docs.service.DELETE_FILE,
+            handle: (req) => deleteFileHandler.handle(req)
         });
 
     }
@@ -127,7 +133,7 @@ async function start(busAddress, httpServerPort) {
             });
         }
 
-        app.post(constants.endpoints.http.UPLOAD_FILE, upload.single("file"), async (req, res) => {
+        app.post(constants.endpoints.http.UPLOAD_FILE, upload().single("file"), async (req, res) => {
             try {
                 const resp = await uploadFileHandler.handle(req);
 
@@ -138,7 +144,7 @@ async function start(busAddress, httpServerPort) {
         });
 
         if (conf.proxyImages) {
-            app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
+            app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage().single("file"), async (req, res) => {
                 try {
                     const resp = await uploadFileHandler.handle(req);
 

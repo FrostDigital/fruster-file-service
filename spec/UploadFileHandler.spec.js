@@ -1,5 +1,3 @@
-process.env.MAX_FILE_SIZE_MB = 0.1;
-
 const request = require("request");
 const fs = require("fs");
 const conf = require("../conf");
@@ -11,17 +9,13 @@ const specUtils = require("./support/spec-utils");
 const constants = require("../lib/constants");
 
 
-// TODO: this test should be named UploadFileHandler.spec.js but for some reason it fails if it does 🤔
-describe("file-upload", () => {
+describe("UploadFileHandler", () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
 
-    afterEach((done) => {
-        conf.proxyImages = false;
-        done();
-    });
+    afterEach(() => conf.proxyImages = false);
 
     testUtils.startBeforeAll({
         mockNats: true,
@@ -108,6 +102,32 @@ describe("file-upload", () => {
             log.error(err);
             done.fail();
         }
+    });
+
+});
+
+/** Since this is the only test that should have a small file size limit this has to be in its own describe */
+xdescribe("UploadFileHandler pt. 2", () => {
+    const httpPort = Math.floor(Math.random() * 6000 + 2000);
+    const baseUri = `http://127.0.0.1:${httpPort}`;
+
+    const fs = require("fs");
+    const path = require("path");
+    const directory = "./images";
+
+    beforeAll(() => {
+        conf.maxFileSize = 0.0001;
+    });
+
+    afterAll(() => {
+        conf.maxFileSize = 5;
+        conf.proxyImages = false;
+    });
+
+    testUtils.startBeforeAll({
+        mockNats: true,
+        service: (connection) => fileService.start(connection.natsUrl, httpPort),
+        bus: bus
     });
 
     it("should fail to upload a large file", async (done) => {
