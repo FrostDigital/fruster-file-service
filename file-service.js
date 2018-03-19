@@ -133,7 +133,7 @@ async function start(busAddress, httpServerPort) {
             });
         }
 
-        app.post(constants.endpoints.http.UPLOAD_FILE, upload.single("file"), async (req, res) => {
+        app.post(constants.endpoints.http.UPLOAD_FILE, upload().single("file"), async (req, res) => {
             try {
                 const resp = await uploadFileHandler.handle(req);
 
@@ -144,7 +144,7 @@ async function start(busAddress, httpServerPort) {
         });
 
         if (conf.proxyImages) {
-            app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage.single("file"), async (req, res) => {
+            app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage().single("file"), async (req, res) => {
                 try {
                     const resp = await uploadFileHandler.handle(req);
 

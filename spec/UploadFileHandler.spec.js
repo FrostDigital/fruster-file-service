@@ -8,21 +8,14 @@ const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
 const constants = require("../lib/constants");
 
+
 describe("UploadFileHandler", () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
 
-    beforeAll(done => {
-        conf.maxFileSize = 0.01;
-        done();
-    });
-
-    afterEach((done) => {
-        conf.proxyImages = false;
-        done();
-    });
+    afterEach(() => conf.proxyImages = false);
 
     testUtils.startBeforeAll({
         mockNats: true,
@@ -109,6 +102,27 @@ describe("UploadFileHandler", () => {
             log.error(err);
             done.fail();
         }
+    });
+
+});
+
+describe("UploadFileHandler pt. 2", () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
+    const httpPort = Math.floor(Math.random() * 6000 + 2000);
+    const baseUri = `http://127.0.0.1:${httpPort}`;
+
+    beforeAll(() => conf.maxFileSize = 0.0001);
+
+    afterAll(() => {
+        conf.maxFileSize = 5;
+        conf.proxyImages = false;
+    });
+
+    testUtils.startBeforeAll({
+        mockNats: true,
+        service: (connection) => fileService.start(connection.natsUrl, httpPort),
+        bus: bus
     });
 
     it("should fail to upload a large file", async (done) => {
