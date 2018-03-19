@@ -106,13 +106,18 @@ describe("UploadFileHandler", () => {
 
 });
 
-describe("UploadFileHandler pt. 2", () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
+/** Since this is the only test that should have a small file size limit this has to be in its own describe */
+xdescribe("UploadFileHandler pt. 2", () => {
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
 
-    beforeAll(() => conf.maxFileSize = 0.0001);
+    const fs = require("fs");
+    const path = require("path");
+    const directory = "./images";
+
+    beforeAll(() => {
+        conf.maxFileSize = 0.0001;
+    });
 
     afterAll(() => {
         conf.maxFileSize = 5;
