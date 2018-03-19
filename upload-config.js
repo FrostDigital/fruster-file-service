@@ -16,12 +16,6 @@ const bucket = new aws.S3({
 });
 
 module.exports = () => {
-    console.log("\n");
-    console.log("=======================================");
-    console.log("upload-config -> conf.maxFileSize");
-    console.log("=======================================");
-    console.log(require("util").inspect(conf.maxFileSize * 1024 * 1024, null, null, true));
-    console.log("\n");
     return multer({
         limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
 
