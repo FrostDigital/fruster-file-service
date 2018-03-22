@@ -64,3 +64,7 @@ typings/
 .health
 
 .DStore
+
+# Temp folder for image upload until s3 bucket
+
+images

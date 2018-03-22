@@ -34,7 +34,11 @@ const configExports = {
 
     maxImageUploadRetries: Number.parseInt(process.env.MAX_IMAGE_UPLOAD_RETRIES || 3),
 
-    maxQueryRescaleSize: Number.parseInt(process.env.MAX_QUERY_RESCALE_SIZE || 5000)
+    maxQueryRescaleSize: Number.parseInt(process.env.MAX_QUERY_RESCALE_SIZE || 5000),
+
+    needThumbnails: parseBool(process.env.NEED_THUMBNAILS || "false"),
+
+    noOfThumbnails: Number.parseInt(process.env.NO_OF_THUMBNAILS || 1)
 
 }
 

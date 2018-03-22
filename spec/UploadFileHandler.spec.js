@@ -8,14 +8,16 @@ const fileService = require("../file-service");
 const specUtils = require("./support/spec-utils");
 const constants = require("../lib/constants");
 
-
 describe("UploadFileHandler", () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
 
-    afterEach(() => conf.proxyImages = false);
+    afterEach(() => {
+        conf.proxyImages = false;
+        conf.needThumbnails = false;
+    });
 
     testUtils.startBeforeAll({
         mockNats: true,
@@ -96,6 +98,31 @@ describe("UploadFileHandler", () => {
             expect(response.statusCode).toBe(400, "response.statusCode");
             expect(response.body.status).toBe(400, "response.body.status");
             expect(response.body.error.title).toBe("No file provided", "response.body.error.title");
+
+            done();
+        } catch (err) {
+            log.error(err);
+            done.fail();
+        }
+    });
+
+    it("should possible to upload video file to s3 and create thumbnails", async (done) => {
+        try {
+            conf.needThumbnails = true;
+            conf.noOfThumbnails = 3;
+
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "small.mp4");
+
+            expect(response.statusCode).toBe(201, "response.statusCode");
+            expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
+            expect(response.body.data.originalName).toBe("small.mp4", "response.body.data.originalName");
+            expect(response.body.data.key).toContain(".mp4", "response.body.data.key");
+            expect(response.body.data.thumbnails).toBeDefined("response.body.data.thumbnails");
+            expect(response.body.data.thumbnails.length).toBe(conf.noOfThumbnails, "response.body.data.thumbnails count");
+
+            response.body.data.thumbnails.forEach(thumbnail => {
+                expect(thumbnail).toContain("https://fruster-uploads", "thumbnail url");
+            });
 
             done();
         } catch (err) {
