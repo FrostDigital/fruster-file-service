@@ -67,4 +67,4 @@ typings/
 
 # Temp folder for image upload until s3 bucket
 
-tmp
+images

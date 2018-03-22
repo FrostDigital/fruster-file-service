@@ -66,7 +66,7 @@ describe("GetImageHandler", () => {
 
     });
 
-    xit("should be possible to scale image", async (done) => {
+    it("should be possible to scale image", async (done) => {
 
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
@@ -117,7 +117,7 @@ describe("GetImageHandler", () => {
 
     });
 
-    xit("should return image url from memory if image has been resized earlier", async (done) => {
+    it("should return image url from memory if image has been resized earlier", async (done) => {
         conf.proxyImages = true;
         conf.proxyImageUrl = baseUri;
         conf.serviceHttpUrl = baseUri;
