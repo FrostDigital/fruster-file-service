@@ -9,7 +9,7 @@ const specUtils = require("./support/spec-utils");
 const constants = require("../lib/constants");
 
 describe("UploadFileHandler", () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
     const httpPort = Math.floor(Math.random() * 6000 + 2000);
     const baseUri = `http://127.0.0.1:${httpPort}`;
