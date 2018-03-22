@@ -81,7 +81,7 @@ describe("GetImageHandler", () => {
             const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
 
             expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
-            expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+            expect(smallImageResponse.body.length).toBe(308, "smallImageResponse.body.length");
 
             setTimeout(async () => {
 
