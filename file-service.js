@@ -128,6 +128,7 @@ async function start(busAddress, httpServerPort) {
                 try {
                     res.status(200).json(inMemoryImageCacheRepo.repo);
                 } catch (err) {
+                    log.error(err);
                     return utils.sendError(res, deprecatedErrors.unknownError());
                 }
             });
@@ -139,6 +140,7 @@ async function start(busAddress, httpServerPort) {
 
                 res.status(resp.status).json(resp);
             } catch (err) {
+                log.error(err);
                 return utils.sendError(res, deprecatedErrors.fileNotProvided());
             }
         });
@@ -150,6 +152,7 @@ async function start(busAddress, httpServerPort) {
 
                     res.status(resp.status).json(resp);
                 } catch (err) {
+                    log.error(err);
                     return utils.sendError(res, deprecatedErrors.fileNotProvided());
                 }
             });

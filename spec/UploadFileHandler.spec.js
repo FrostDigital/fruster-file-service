@@ -113,8 +113,6 @@ describe("UploadFileHandler", () => {
 
             const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "small.mp4");
 
-            log.debug(response);
-
             expect(response.statusCode).toBe(201, "response.statusCode");
             expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
             expect(response.body.data.originalName).toBe("small.mp4", "response.body.data.originalName");
