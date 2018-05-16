@@ -1,0 +1,36 @@
+{
+    "id": "UploadFileResponse",
+    "additionalProperties": false,
+    "properties": {
+        "url": {
+            "description": "The url to the file. If `config.PROXY_IMAGES` is 'true' this is the proxied url, otherwise it is the direct address to amazon s3.",
+            "type": "string",
+            "faker": "image.imageUrl"
+        },
+        "amazonUrl": {
+            "description": "Only exists if `config.PROXY_IMAGES` is 'true'; if this is the case, this is the direct address to amazon s3.",
+            "type": "string",
+            "faker": "image.imageUrl"
+        },
+        "key": {
+            "description": "File name after upload.",
+            "type": "string",
+            "faker": "lorem.word"
+        },
+        "originalName": {
+            "description": "The name the file had originally before upload.",
+            "type": "string",
+            "faker": "lorem.word"
+        },
+        "mimeType": {
+            "description": "The mime type for the file; e.g. for png files 'image/png' etc.",
+            "type": "string",
+            "faker": "system.mimeType"
+        },
+        "size": {
+            "description": "The size of the file.",
+            "type": "integer",
+            "minimum": 0
+        }
+    }
+}
