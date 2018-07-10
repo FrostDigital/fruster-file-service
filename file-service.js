@@ -14,7 +14,6 @@ const utils = require("./lib/util/utils");
 const constants = require("./lib/constants");
 const docs = require("./lib/docs");
 const deprecatedErrors = require("./errors");
-const errors = require("./lib/errors");
 
 const InMemoryImageCacheRepo = require("./lib/repos/InMemoryImageCacheRepo");
 const UploadFileHandler = require("./lib/handlers/UploadFileHandler");

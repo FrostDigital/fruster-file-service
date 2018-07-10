@@ -5,7 +5,6 @@ const bus = require("fruster-bus");
 const constants = require("../lib/constants");
 const uuid = require("uuid");
 const log = require("fruster-log");
-const errors = require("../lib/errors.js");
 const service = require("../file-service");
 
 describe("Delete files", () => {

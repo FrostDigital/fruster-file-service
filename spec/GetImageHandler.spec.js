@@ -7,7 +7,6 @@ const specUtils = require("./support/spec-utils");
 const conf = require("../conf");
 const confBackup = Object.assign({}, conf);
 const constants = require("../lib/constants");
-const sharp = require("sharp");
 const InMemoryImageCacheRepo = require("../lib/repos/InMemoryImageCacheRepo");
 
 

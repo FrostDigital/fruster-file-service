@@ -1,5 +1,3 @@
-const request = require("request");
-const fs = require("fs");
 const conf = require("../conf");
 const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
