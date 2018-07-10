@@ -1,6 +1,7 @@
 const log = require("fruster-log");
 const fileService = require("./file-service");
 const conf = require("./conf");
+const constants = require('./lib/constants');
 
 require("fruster-health").start();
 
@@ -8,9 +9,9 @@ require("fruster-health").start();
 
     try {
         await fileService.start(conf.bus, conf.port);
-        log.info("File service started and connected to bus", conf.bus);
+        log.info(`Successfully started ${constants.serviceName}`);
     } catch (err) {
-        log.error("Failed starting file service", err);
+        log.error(`Failed starting ${constants.serviceName}`, err);
         process.exit(1);
     }
 

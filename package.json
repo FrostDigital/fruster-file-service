@@ -40,12 +40,10 @@
     "nyc": {
         "exclude": [
             "spec/*",
-            "spec/jasmine-runner.js",
             "lib/errors.js",
             "repo/InMemoryImageCacheRepo.js",
             "conf.js",
-            "errors.js",
-            "file-service.js"
+            "errors.js"
         ]
     }
 }

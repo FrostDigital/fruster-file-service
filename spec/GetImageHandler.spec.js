@@ -8,7 +8,7 @@ const conf = require("../conf");
 const confBackup = Object.assign({}, conf);
 const constants = require("../lib/constants");
 const sharp = require("sharp");
-const InMemoryImageCacheRepo = require("../lib/repo/InMemoryImageCacheRepo");
+const InMemoryImageCacheRepo = require("../lib/repos/InMemoryImageCacheRepo");
 
 
 describe("GetImageHandler", () => {
@@ -42,7 +42,7 @@ describe("GetImageHandler", () => {
     });
 
     async function setupImageUrl() {
-        const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "tiny.jpg");
+        const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/tiny.jpg");
         return response.body.data.url;
     }
 

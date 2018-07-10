@@ -4,7 +4,6 @@ const aws = require("aws-sdk");
 const uuid = require('uuid');
 const mime = require('mime-types');
 const conf = require('./conf');
-const errors = require('./errors');
 
 /**
  * Config for files.
@@ -12,12 +11,16 @@ const errors = require('./errors');
 const bucket = new aws.S3({
     accessKeyId: conf.awsAccessKeyId,
     secretAccessKey: conf.awsSecretAccessKey,
-    params: { Bucket: conf.s3Bucket }
+    params: {
+        Bucket: conf.s3Bucket
+    }
 });
 
 module.exports = () => {
     return multer({
-        limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
+        limits: {
+            fileSize: conf.maxFileSize * 1024 * 1024
+        },
 
         // Use S3 as storage, according to docs the upload should be streamed 
         storage: multerS3({
@@ -26,7 +29,9 @@ module.exports = () => {
             acl: conf.s3Acl,
             contentType: multerS3.AUTO_CONTENT_TYPE,
             metadata: (req, file, cb) => {
-                cb(null, { fieldName: file.fieldname });
+                cb(null, {
+                    fieldName: file.fieldname
+                });
             },
             key: (req, file, cb) => {
                 const fileSplit = file.originalname.split('.');
