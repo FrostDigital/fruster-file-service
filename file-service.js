@@ -1,12 +1,10 @@
 const express = require("express");
 const log = require("fruster-log");
 const bus = require("fruster-bus");
-const deprecatedErrors = require("./errors");
-const errors = require("./lib/errors");
-const fs = require("fs");
-
 const bodyParser = require("body-parser");
 const http = require("http");
+const fs = require("fs");
+
 const app = express();
 const conf = require("./conf");
 const upload = require("./upload-config");
@@ -15,12 +13,13 @@ const dateStarted = new Date();
 const utils = require("./lib/util/utils");
 const constants = require("./lib/constants");
 const docs = require("./lib/docs");
+const deprecatedErrors = require("./errors");
 
-const InMemoryImageCacheRepo = require("./lib/repo/InMemoryImageCacheRepo");
-const UploadFileHandler = require("./lib/UploadFileHandler");
-const GetSignedUrlHandler = require("./lib/GetSignedUrlHandler");
-const GetImageHandler = require("./lib/GetImageHandler");
-const DeleteFileHandler = require("./lib/DeleteFileHandler");
+const InMemoryImageCacheRepo = require("./lib/repos/InMemoryImageCacheRepo");
+const UploadFileHandler = require("./lib/handlers/UploadFileHandler");
+const GetSignedUrlHandler = require("./lib/handlers/GetSignedUrlHandler");
+const GetImageHandler = require("./lib/handlers/GetImageHandler");
+const DeleteFilesHandler = require("./lib/handlers/DeleteFilesHandler");
 
 module.exports = {
     start
@@ -48,6 +47,7 @@ async function start(busAddress, httpServerPort) {
                     app.use(bodyParser.urlencoded({
                         extended: false
                     }));
+
                     app.use(bodyParser.json({
                         limit: conf.maxFileSize + "mb"
                     }));
@@ -55,13 +55,13 @@ async function start(busAddress, httpServerPort) {
                     registerHttpEndpoints();
 
                     app.use((err, req, res, next) => { // Do not remove `next`, express will break!
+                        log.error(err);
 
                         if (err.code == "LIMIT_FILE_SIZE") {
                             return utils.sendError(res, deprecatedErrors.fileTooLarge(conf.maxFileSize));
                         } else {
                             return utils.sendError(res, deprecatedErrors.unknownError(err));
                         }
-
                     });
 
                     resolve();
@@ -81,7 +81,7 @@ async function start(busAddress, httpServerPort) {
 
     function registerBusEndpoints() {
         const getSignedUrl = new GetSignedUrlHandler();
-        const deleteFileHandler = new DeleteFileHandler();
+        const deleteFilesHandler = new DeleteFilesHandler();
 
         bus.subscribe({
             subject: constants.endpoints.http.bus.HEALTH,
@@ -91,7 +91,7 @@ async function start(busAddress, httpServerPort) {
 
         bus.subscribe({
             subject: constants.endpoints.http.bus.UPLOAD_FILE,
-            responseSchema: "UploadFileResponse",
+            responseSchema: constants.schemas.response.UPLOAD_FILE,
             forwardToHttp: `${conf.serviceHttpUrl}${constants.endpoints.http.UPLOAD_FILE}`,
             mustBeLoggedIn: conf.mustBeLoggedIn,
             docs: docs.http.UPLOAD_FILE
@@ -99,16 +99,16 @@ async function start(busAddress, httpServerPort) {
 
         bus.subscribe({
             subject: constants.endpoints.service.GET_SIGNED_URL,
-            responseSchema: "GetSignedUrlResponse",
+            responseSchema: constants.schemas.response.GET_SIGNED_URL,
             handle: (req) => getSignedUrl.handle(req),
             docs: docs.service.GET_SIGNED_URL
         });
 
         bus.subscribe({
             subject: constants.endpoints.service.DELETE_FILE,
-            requestSchema: "DeleteFileRequest",
+            requestSchema: constants.schemas.request.DELETE_FILES,
             docs: docs.service.DELETE_FILE,
-            handle: (req) => deleteFileHandler.handle(req)
+            handle: (req) => deleteFilesHandler.handle(req)
         });
 
     }

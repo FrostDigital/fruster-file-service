@@ -1,12 +1,9 @@
-const mongo = require("mongodb");
 const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
 const fileService = require("../file-service");
-const conf = require("../conf");
 const constants = require("../lib/constants");
 const uuid = require("uuid");
 const log = require("fruster-log");
-
 
 describe("Get signed url", () => {
 
@@ -32,7 +29,9 @@ describe("Get signed url", () => {
 				skipOptionsRequest: true,
 				message: {
 					reqId: uuid.v4(),
-					data: { file: "foo/bar" }
+					data: {
+						file: "foo/bar"
+					}
 				}
 			});
 
@@ -53,7 +52,9 @@ describe("Get signed url", () => {
 				skipOptionsRequest: true,
 				message: {
 					reqId: uuid.v4(),
-					data: { file: "foo/bar" }
+					data: {
+						file: "foo/bar"
+					}
 				}
 			});
 

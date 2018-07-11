@@ -1,5 +1,3 @@
-const request = require("request");
-const fs = require("fs");
 const conf = require("../conf");
 const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
@@ -25,7 +23,7 @@ describe("UploadFileHandler", () => {
 
     it("should upload file to s3 bucket", async (done) => {
         try {
-            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "trump.jpg");
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
             expect(response.statusCode).toBe(201, "response.statusCode");
             expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
@@ -43,7 +41,7 @@ describe("UploadFileHandler", () => {
         conf.proxyImages = true;
 
         try {
-            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "trump.jpg");
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
             expect(response.statusCode).toBe(201, "response.statusCode");
             expect(response.body.data.url).toContain(conf.proxyImageUrl, "response.body.data.url");
@@ -59,7 +57,7 @@ describe("UploadFileHandler", () => {
 
     it("should upload file to s3 bucket and keep file extension from uploaded file", async (done) => {
         try {
-            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "random-file-format.fit");
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/random-file-format.fit");
 
             expect(response.statusCode).toBe(201, "response.statusCode");
             expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
@@ -75,7 +73,7 @@ describe("UploadFileHandler", () => {
 
     it("should upload file to s3 bucket and set file extension from mimetype if no extension is set in file name", async (done) => {
         try {
-            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "file-without-extension");
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/file-without-extension");
 
             expect(response.statusCode).toBe(201, "response.statusCode");
             expect(response.body.data.url).toContain("https://fruster-uploads", "response.body.data.url");
@@ -132,7 +130,7 @@ xdescribe("UploadFileHandler pt. 2", () => {
 
     it("should fail to upload a large file", async (done) => {
         try {
-            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "large-image.jpg");
+            const response = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
 
             expect(response.statusCode).toBe(400, "response.statusCode");
             expect(response.body.status).toBe(400, "response.body.status");
