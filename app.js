@@ -2,8 +2,9 @@ const log = require("fruster-log");
 const fileService = require("./file-service");
 const conf = require("./conf");
 const constants = require('./lib/constants');
+const health = require("fruster-health");
 
-require("fruster-health").start();
+health.start();
 
 (async function () {
 
@@ -16,3 +17,10 @@ require("fruster-health").start();
     }
 
 }());
+
+process.on("uncaughtException", (err) => {
+    log.error(err);
+    if (err.message && err.message.includes("ECONNRESET")) {
+        health.fail("Service failure due to ECONNRESET");
+    }
+});
