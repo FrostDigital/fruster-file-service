@@ -44,6 +44,18 @@ async function start(busAddress, httpServerPort) {
                 .on("error", reject)
                 .on("listening", () => {
 
+                    app.use((req, res, next) => {
+                        const startTime = Date.now();
+
+                        res.on("finish", () => {
+                            const reqDuration = Date.now() - startTime;
+                            const fileSizeKb = req.file && req.file.size ? req.file.size / 1000 : null;
+                            log.info(`${req.method} ${req.path} ${fileSizeKb ? fileSizeKb + " KB" : ""} -- ${res.statusCode} ${reqDuration}ms`);
+                        });
+
+                        next();
+                    });
+
                     app.use(bodyParser.urlencoded({
                         extended: false
                     }));
@@ -53,6 +65,11 @@ async function start(busAddress, httpServerPort) {
                     }));
 
                     registerHttpEndpoints();
+
+                    app.use((req, res, next) => {
+
+                        next();
+                    });
 
                     app.use((err, req, res, next) => { // Do not remove `next`, express will break!
                         log.error(err);
@@ -134,6 +151,8 @@ async function start(busAddress, httpServerPort) {
         }
 
         app.post(constants.endpoints.http.UPLOAD_FILE, upload().single("file"), async (req, res) => {
+            const startTime = Date.now();
+
             try {
                 const resp = await uploadFileHandler.handle(req);
 
@@ -145,6 +164,7 @@ async function start(busAddress, httpServerPort) {
 
         if (conf.proxyImages) {
             app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage().single("file"), async (req, res) => {
+                const startTime = Date.now();
                 try {
                     const resp = await uploadFileHandler.handle(req);
 
