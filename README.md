@@ -81,3 +81,6 @@ Performs a multipart form upload.
 
     # Max file size of uploaded files in mb 
     MAX_FILE_SIZE_MB=5
+
+    # Cache control header set on uploaded files and on image responses    
+    CACHE_CONTROL_MAX_AGE=24h

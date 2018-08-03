@@ -56,6 +56,7 @@ describe("GetImageHandler", () => {
 
             expect(imageResponse.body).toBeDefined("image should be get");
             expect(imageResponse.body.length).toBe(7792, "image.length");
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=" + conf.cacheControlMaxAgeSec);
 
             done();
         } catch (err) {
@@ -274,10 +275,11 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "/olabandola.jpg";
+            const url = conf.proxyImageUrl + "/image/olabandola.jpg";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=0");
 
             done();
         } catch (err) {
@@ -292,10 +294,11 @@ describe("GetImageHandler", () => {
         conf.serviceHttpUrl = baseUri;
 
         try {
-            const url = conf.proxyImageUrl + "/olabandola.jpg?height=200";
+            const url = conf.proxyImageUrl + "/image/olabandola.jpg?height=200";
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=0");
 
             done();
         } catch (err) {
