@@ -56,7 +56,7 @@ describe("GetImageHandler", () => {
 
             expect(imageResponse.body).toBeDefined("image should be get");
             expect(imageResponse.body.length).toBe(7792, "image.length");
-            expect(imageResponse.headers["cache-control"]).toBe(conf.cacheControlMaxAgeSec + "");
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=" + conf.cacheControlMaxAgeSec);
 
             done();
         } catch (err) {
@@ -279,7 +279,7 @@ describe("GetImageHandler", () => {
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
-            expect(imageResponse.headers["cache-control"]).toBe("0");
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=0");
 
             done();
         } catch (err) {
@@ -298,7 +298,7 @@ describe("GetImageHandler", () => {
             const imageResponse = await specUtils.get(url);
 
             expect(imageResponse.statusCode).toBeDefined(404);
-            expect(imageResponse.headers["cache-control"]).toBe("0");
+            expect(imageResponse.headers["cache-control"]).toBe("max-age=0");
 
             done();
         } catch (err) {
