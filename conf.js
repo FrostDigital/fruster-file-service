@@ -1,3 +1,5 @@
+const ms = require("ms");
+
 const configExports = {
 
     // NATS servers, set multiple if using cluster
@@ -34,7 +36,10 @@ const configExports = {
 
     maxImageUploadRetries: Number.parseInt(process.env.MAX_IMAGE_UPLOAD_RETRIES || 3),
 
-    maxQueryRescaleSize: Number.parseInt(process.env.MAX_QUERY_RESCALE_SIZE || 5000)
+    maxQueryRescaleSize: Number.parseInt(process.env.MAX_QUERY_RESCALE_SIZE || 5000),
+
+    // Cache control header set on uploaded files
+    cacheControlMaxAgeSec: ms(process.env.CACHE_CONTROL_MAX_AGE || "24h") / 1000
 
 }
 

@@ -1,9 +1,9 @@
-const multerS3 = require('multer-s3');
-const multer = require('multer');
+const multerS3 = require("multer-s3");
+const multer = require("multer");
 const aws = require("aws-sdk");
-const uuid = require('uuid');
-const mime = require('mime-types');
-const conf = require('./conf');
+const uuid = require("uuid");
+const mime = require("mime-types");
+const conf = require("./conf");
 
 /**
  * Config for files.
@@ -28,6 +28,7 @@ module.exports = () => {
             bucket: conf.s3Bucket,
             acl: conf.s3Acl,
             contentType: multerS3.AUTO_CONTENT_TYPE,
+            cacheControl: "max-age=" + conf.cacheControlMaxAgeSec,
             metadata: (req, file, cb) => {
                 cb(null, {
                     fieldName: file.fieldname
