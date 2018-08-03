@@ -44,6 +44,8 @@ async function start(busAddress, httpServerPort) {
                 .on("error", reject)
                 .on("listening", () => {
 
+                    log.info("File service HTTP server started and listening on port " + httpServerPort);
+
                     app.use((req, res, next) => {
                         const startTime = Date.now();
 
@@ -94,7 +96,6 @@ async function start(busAddress, httpServerPort) {
 
     await startHttpServer();
     await connectToBus();
-    log.debug("Hello from fruster-file-service");
 
     function registerBusEndpoints() {
         const getSignedUrl = new GetSignedUrlHandler();
