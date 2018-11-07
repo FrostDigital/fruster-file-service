@@ -8,7 +8,7 @@ RUN uname -a
 RUN apk add --update --update-cache \
     --repository https://dl-3.alpinelinux.org/alpine/edge/main/ \
     --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ \
-    vips-dev fftw-dev gcc g++ make  
+    vips-dev fftw-dev gcc g++ make python 
 
 WORKDIR /app
 ADD . .
