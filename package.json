@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "private": true,
     "scripts": {
-        "preinstall": "npm install -g node-gyp",
         "start": "node ./app.js",
         "test": "nyc --reporter=html --check-coverage --lines 80 node ./spec/support/jasmine-runner.js"
     },
@@ -23,7 +22,7 @@
         "rebuild": "0.1.2",
         "request": "2.87.0",
         "s3-download-stream": "1.1.1",
-        "sharp": "0.20.5",
+        "sharp": "0.21.0",
         "uuid": "3.3.2"
     },
     "devDependencies": {
