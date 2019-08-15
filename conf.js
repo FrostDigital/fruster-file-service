@@ -4,7 +4,9 @@ const ms = require("ms");
 
 const configExports = {
 
-    bus: "nats://localhost:4223",
+    // NATS servers, set multiple if using cluster
+    // Example: `["nats://10.23.45.1:4222", "nats://10.23.41.8:4222"]`
+    bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
 
     // HTTP port
     port: process.env.PORT || 3410,
