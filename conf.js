@@ -1,16 +1,24 @@
 const ms = require("ms");
 
+
+
 const configExports = {
 
-    // NATS servers, set multiple if using cluster
-    // Example: `["nats://10.23.45.1:4222", "nats://10.23.41.8:4222"]`
-    bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
+    bus: "nats://localhost:4223",
 
     // HTTP port
     port: process.env.PORT || 3410,
 
     // Name of S3 bucket
     s3Bucket: process.env.S3_BUCKET || "fruster-uploads",
+
+    /**
+	 * Allow origin for CORS
+	 * Examples: `*`, `http://www.example.com`, `http://www.example.com,http://localhost:9000`
+	 *
+	 * Default: *
+	 */
+    allowOrigin: parseArray(process.env.ALLOW_ORIGIN) || "*",
 
     // AWS Access key id
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAJPEXVPNKCC2H35AQ",
