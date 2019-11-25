@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const http = require("http");
 const fs = require("fs");
 
+const cors = require("cors");
 const app = express();
 const conf = require("./conf");
 const upload = require("./upload-config");
@@ -46,6 +47,8 @@ async function start(busAddress, httpServerPort) {
 
                     log.info("File service HTTP server started and listening on port " + httpServerPort);
 
+                    app.use(cors({ origin: conf.allowOrigin }));
+
                     app.use((req, res, next) => {
                         const startTime = Date.now();
 
@@ -58,20 +61,13 @@ async function start(busAddress, httpServerPort) {
                         next();
                     });
 
-                    app.use(bodyParser.urlencoded({
-                        extended: false
-                    }));
+                    app.use(bodyParser.urlencoded({ extended: false }));
 
-                    app.use(bodyParser.json({
-                        limit: conf.maxFileSize + "mb"
-                    }));
+                    app.use(bodyParser.json({ limit: conf.maxFileSize + "mb" }));
 
                     registerHttpEndpoints();
 
-                    app.use((req, res, next) => {
-
-                        next();
-                    });
+                    app.use((req, res, next) => { next(); });
 
                     app.use((err, req, res, next) => { // Do not remove `next`, express will break!
                         log.error(err);
