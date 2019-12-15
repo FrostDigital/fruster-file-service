@@ -69,7 +69,7 @@ describe("GetImageHandler", () => {
 		const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
 
 		expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
-		expect(smallImageResponse.body.length).toBe(302, "smallImageResponse.body.length");
+		expect(smallImageResponse.body.length).toBe(306, "smallImageResponse.body.length");
 
 		setTimeout(async () => {
 			/*
@@ -199,8 +199,6 @@ describe("GetImageHandler", () => {
 
 		const url = conf.proxyImageUrl + "/image/olabandola.jpg";
 		const imageResponse = await specUtils.get(url);
-
-		console.log(imageResponse);
 
 		expect(imageResponse.statusCode).toBeDefined(404);
 		expect(imageResponse.headers["cache-control"]).toBe("max-age=0");
