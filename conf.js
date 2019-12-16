@@ -21,10 +21,10 @@ const configExports = {
 	allowOrigin: parseArray(process.env.ALLOW_ORIGIN) || "*",
 
 	// AWS Access key id
-	awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAZADTPF7KXSTU4E7Q",
+	awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || "AKIAJPEXVPNKCC2H35AQ",
 
 	// AWS Secret access key
-	awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET || "5xTxDdIqGEW+jZAhWUhHUvLspqtph9OZHOduHMW0",
+	awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET || "0KK41oXRPZItRrhuwh+Sd+cfq2EntJXN4UHZpNrq",
 
 	// ACL for uploaded files, defaults to public-read which will make
 	// uploaded files public
