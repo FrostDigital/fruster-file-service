@@ -1,49 +1,49 @@
 {
-    "name": "fruster-file-service",
-    "version": "0.0.1",
-    "private": true,
-    "scripts": {
-        "start": "node ./app.js",
-        "test": "nyc --reporter=html --check-coverage --lines 80 node ./spec/support/jasmine-runner.js"
-    },
-    "dependencies": {
-        "aws-sdk": "2.271.1",
-        "body-parser": "1.18.3",
-        "express": "4.16.3",
-        "file-type": "8.1.0",
-        "fruster-bus": "0.2.27",
-        "fruster-errors": "0.0.7",
-        "fruster-health": "0.0.13",
-        "fruster-log": "0.0.18",
-        "mime-types": "2.1.18",
-        "ms": "2.1.1",
-        "multer": "1.3.1",
-        "multer-s3": "2.7.0",
-        "rebuild": "0.1.2",
-        "request": "2.87.0",
-        "s3-download-stream": "1.1.1",
-        "sharp": "0.21.0",
-        "uuid": "3.3.2",
-        "cors": "2.8.5"
-    },
-    "devDependencies": {
-        "@types/jasmine": "^2.8.8",
-        "fruster-test-utils": "0.3.22",
-        "jasmine": "3.1.0",
-        "jasmine-spec-reporter": "4.2.1",
-        "nats-server-control": "0.0.1",
-        "nyc": "12.0.2"
-    },
-    "engines": {
-        "node": "7.9.0"
-    },
-    "nyc": {
-        "exclude": [
-            "spec/*",
-            "lib/errors.js",
-            "repo/InMemoryImageCacheRepo.js",
-            "conf.js",
-            "errors.js"
-        ]
-    }
+	"name": "fruster-file-service",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"start": "node ./app.js",
+		"test": "nyc --reporter=html --check-coverage --lines 80 node ./spec/support/jasmine-runner.js"
+	},
+	"dependencies": {
+		"aws-sdk": "2.589.0",
+		"body-parser": "1.19.0",
+		"express": "4.17.1",
+		"file-type": "12.4.0",
+		"fruster-bus": "0.5.10",
+		"fruster-errors": "0.0.7",
+		"fruster-health": "0.0.14",
+		"fruster-log": "0.0.18",
+		"mime-types": "2.1.25",
+		"ms": "2.1.2",
+		"multer": "1.4.2",
+		"multer-s3": "2.9.0",
+		"rebuild": "0.1.2",
+		"request": "2.88.0",
+		"s3-download-stream": "1.1.1",
+		"sharp": "0.23.4",
+		"uuid": "3.3.3",
+		"cors": "2.8.5"
+	},
+	"devDependencies": {
+		"@types/jasmine": "^3.5.0",
+		"fruster-test-utils": "0.5.0",
+		"jasmine": "3.5.0",
+		"jasmine-spec-reporter": "4.2.1",
+		"nats-server-control": "0.0.1",
+		"nyc": "14.1.1"
+	},
+	"engines": {
+		"node": "7.9.0"
+	},
+	"nyc": {
+		"exclude": [
+			"spec/*",
+			"lib/errors.js",
+			"repo/InMemoryImageCacheRepo.js",
+			"conf.js",
+			"errors.js"
+		]
+	}
 }
