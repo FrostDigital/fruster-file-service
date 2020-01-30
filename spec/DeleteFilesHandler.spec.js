@@ -1,4 +1,3 @@
-const fs = require("fs");
 const testUtils = require("fruster-test-utils");
 const specUtils = require("./support/spec-utils");
 const bus = require("fruster-bus");

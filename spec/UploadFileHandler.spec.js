@@ -83,11 +83,11 @@ xdescribe("UploadFileHandler pt. 2", () => {
 	const path = require("path");
 	const directory = "./images";
 
-	beforeAll(() => {
+	beforeEach(() => {
 		conf.maxFileSize = 0.0001;
 	});
 
-	afterAll(() => {
+	afterEach(() => {
 		conf.maxFileSize = 5;
 		conf.proxyImages = false;
 	});
