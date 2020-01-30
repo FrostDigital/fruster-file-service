@@ -1,21 +1,21 @@
 {
-    "id": "DeleteFilesRequest",
-    "description": "Request object for delete a file from s3 bucket",
-    "additionalProperties": false,
-    "properties": {
-        "url": {
-            "description": "The url to the file.",
-            "type": "string",
-            "format": "uri"
-        },
-        "urls": {
-            "description": "The urls to the file.",
-            "type": "array",
-            "items": {
-                "type": "string",
-                "format": "uri"
-            },
-            "minItems": 1
-        }
-    }
+	"id": "DeleteFilesRequest",
+	"description": "Request object for delete a file from s3 bucket",
+	"additionalProperties": false,
+	"properties": {
+		"url": {
+			"description": "The url to the file.",
+			"type": "string",
+			"format": "uri"
+		},
+		"urls": {
+			"description": "The urls to the file.",
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			},
+			"minItems": 1
+		}
+	}
 }

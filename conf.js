@@ -7,7 +7,7 @@ const configExports = {
 	bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
 
 	// HTTP port
-	port: process.env.PORT || 3410,
+	port: process.env.PORT ? Number.parseInt(process.env.PORT) : 3410,
 
 	// Name of S3 bucket
 	s3Bucket: process.env.S3_BUCKET || "fruster-uploads",
@@ -31,7 +31,7 @@ const configExports = {
 	s3Acl: process.env.S3_ACL || "public-read",
 
 	// Max file size of uploaded files in mb
-	maxFileSize: process.env.MAX_FILE_SIZE_MB || 5,
+	maxFileSize: process.env.MAX_FILE_SIZE_MB ? Number.parseInt(process.env.MAX_FILE_SIZE_MB) : 5,
 
 	// Name of service to use for all bus subjects
 	serviceName: process.env.SERVICE_NAME || "file-service",
