@@ -8,21 +8,24 @@ const constants = require("../lib/constants");
 const InMemoryImageCacheRepo = require("../lib/repos/InMemoryImageCacheRepo");
 
 describe("GetImageHandler", () => {
-	jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
 	let httpPort;
 	let baseUri;
 	let repo;
 
-	afterEach((done) => {
+	let originalTimeout;
+	beforeEach(() => {
+		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+	});
+
+	afterEach(() => {
 		conf.proxyImages = confBackup.proxyImages;
 		conf.proxyImageUrl = confBackup.proxyImageUrl;
 		conf.serviceHttpUrl = confBackup.serviceHttpUrl;
 		conf.port = confBackup.port;
 
 		specUtils.removeFilesInDirectory(constants.temporaryImageLocation);
-
-		done();
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
 	});
 
 	testUtils.startBeforeEach({

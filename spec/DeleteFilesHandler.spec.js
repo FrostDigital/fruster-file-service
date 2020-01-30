@@ -7,21 +7,11 @@ const uuid = require("uuid");
 const service = require("../file-service");
 
 describe("Delete files", () => {
-	jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
-	afterAll(() => {
-		fs.readdir("./images", (err, files) => {
-			if (err) throw err;
-
-			for (const file of files) {
-				fs.unlink(`./images/${file}`, err => {
-					if (err) throw err;
-				});
-			}
-		});
+	afterEach(() => {
+		specUtils.removeFilesInDirectory(constants.temporaryImageLocation);
 	});
 
 	testUtils.startBeforeAll({
