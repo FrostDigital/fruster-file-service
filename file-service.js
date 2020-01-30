@@ -9,7 +9,7 @@ const cors = require("cors");
 const app = express();
 const conf = require("./conf");
 const upload = require("./upload-config");
-const uploadResizedImage = require("./upload-resized-image-config");
+const uploadUpdatedImage = require("./upload-updated-image-config");
 const dateStarted = new Date();
 const utils = require("./lib/util/utils");
 const constants = require("./lib/constants");
@@ -173,7 +173,7 @@ async function start(busAddress, httpServerPort) {
 		});
 
 		if (conf.proxyImages) {
-			app.post(constants.endpoints.http.UPLOAD_RESIZED_IMAGE, uploadResizedImage().single("file"), async (req, res) => {
+			app.post(constants.endpoints.http.UPLOAD_UPDATED_IMAGE, uploadUpdatedImage().single("file"), async (req, res) => {
 				try {
 					const resp = await uploadFileHandler.handle(req);
 

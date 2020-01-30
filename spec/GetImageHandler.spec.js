@@ -8,6 +8,8 @@ const constants = require("../lib/constants");
 const InMemoryImageCacheRepo = require("../lib/repos/InMemoryImageCacheRepo");
 
 describe("GetImageHandler", () => {
+	jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
 	let httpPort;
 	let baseUri;
 	let repo;

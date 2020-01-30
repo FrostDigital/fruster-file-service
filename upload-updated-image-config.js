@@ -4,7 +4,7 @@ const aws = require("aws-sdk");
 const conf = require('./conf');
 
 /**
- * Image config for resized images.
+ * Image config for updated images.
  * Uses original file name when uploading.
  */
 const bucket = new aws.S3({
