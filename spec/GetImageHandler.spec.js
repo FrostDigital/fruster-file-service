@@ -111,7 +111,7 @@ describe("GetImageHandler", () => {
 			expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
 
 			expect(Object.keys(inMemoryRepoCacheData[imageName]).length).toBe(1);
-		}, 7000);
+		}, 5000);
 	});
 
 	it("should get image from S3 if it exists", async () => {
@@ -123,7 +123,6 @@ describe("GetImageHandler", () => {
 		await specUtils.get(url);
 
 		setTimeout(async () => {
-
 			/*
 			 * Since we do not wait for resized image to be uploaded before sending them back to user
 			 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
@@ -132,6 +131,7 @@ describe("GetImageHandler", () => {
 			let imageName = urlSplits[urlSplits.length - 1];
 			imageName = imageName.replace(`?height=${height}`, "");
 			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+
 			const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][repo._queryToString({ height: height })];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
@@ -139,7 +139,7 @@ describe("GetImageHandler", () => {
 			expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
 
 			expect(Object.keys(inMemoryRepoCacheData[imageName]).length).toBe(1);
-		}, 3000);
+		}, 9500);
 	});
 
 	it("should return scaled image even if it wasn't possible to upload to s3", async () => {
@@ -171,7 +171,7 @@ describe("GetImageHandler", () => {
 
 			expect(cachedUrlSmallImage).toBeUndefined("cachedUrlSmallImage");
 			expect(cachedUrlBigImage).toBeUndefined("cachedUrlBigImage");
-		}, 3000);
+		}, 9500);
 	});
 
 	it("should return 404 if image does not exist", async () => {
