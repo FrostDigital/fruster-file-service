@@ -1,12 +1,11 @@
-const multerS3 = require("multer-s3");
-const multer = require("multer");
+const multerS3 = require('multer-s3');
+const multer = require('multer');
 const aws = require("aws-sdk");
-const uuid = require("uuid");
-const mime = require("mime-types");
-const conf = require("./conf");
+const conf = require('./conf');
 
 /**
- * Config for files.
+ * Image config for updated images.
+ * Uses original file name when uploading.
  */
 const bucket = new aws.S3({
 	accessKeyId: conf.awsAccessKeyId,
@@ -28,15 +27,16 @@ module.exports = () => {
 			bucket: conf.s3Bucket,
 			acl: conf.s3Acl,
 			contentType: multerS3.AUTO_CONTENT_TYPE,
-			cacheControl: "max-age=" + conf.cacheControlMaxAgeSec,
 			metadata: (req, file, cb) => {
 				cb(null, { fieldName: file.fieldname });
 			},
 			key: (req, file, cb) => {
-				const fileSplit = file.originalname.split('.');
-				const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length - 1] : mime.extension(file.mimetype);
+				const indexOfStart = file.originalname.indexOf("{{");
+				const indexOfEnd = file.originalname.indexOf("}}");
 
-				cb(null, uuid.v4() + '.' + fileExt);
+				file.originalname = file.originalname.replace(file.originalname.substring(indexOfStart, 13 + indexOfEnd), "")
+
+				cb(null, file.originalname);
 			}
 		})
 	});

@@ -1,14 +1,10 @@
-var Jasmine = require('jasmine');
-var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
-var noop = function () { };
+const Jasmine = require('jasmine');
+const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+const noop = function () { };
 
-var jrunner = new Jasmine({
-    randomizeTests: true
-});
-jrunner.configureDefaultReporter({
-    print: noop
-}); // remove default reporter logs
+const jRunner = new Jasmine({ randomizeTests: true });
+jRunner.configureDefaultReporter({ print: noop }); // remove default reporter logs
 jasmine.getEnv().addReporter(new SpecReporter()); // add jasmine-spec-reporter
-jrunner.loadConfigFile(); // load jasmine.json configuration
-jrunner.execute();
-jrunner.randomizeTests(true);
+jRunner.loadConfigFile("./spec/support/jasmine.json"); // load jasmine.json configuration
+jRunner.execute();
+jRunner.randomizeTests(true);

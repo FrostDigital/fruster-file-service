@@ -1,0 +1,13 @@
+{
+	"id": "UpdateImageRequest",
+	"description": "Request object for update an image",
+	"additionalProperties": false,
+	"properties": {
+		"angle": {
+			"description": "Angle of the rotation",
+			"type": "number",
+			"min": 0,
+			"max": 360
+		}
+	}
+}
