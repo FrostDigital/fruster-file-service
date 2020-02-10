@@ -67,9 +67,11 @@ describe("UpdateImageHandler", () => {
 		});
 
 		expect(status).toBe(200, "status");
-		expect(data.imageUrl).toBeDefined("imageUrl");
+		expect(data.amazonUrl).toBeDefined("amazonUrl");
+		expect(data.url).toBeDefined("url");
+		expect(data.key).toBeDefined("key");
 
-		const rotateImageSize = await getImageSize(data.imageUrl);
+		const rotateImageSize = await getImageSize(data.amazonUrl);
 
 		expect(rotateImageSize.width).toBe(originalImageSize.height, "rotate image width");
 		expect(rotateImageSize.height).toBe(originalImageSize.width, "rotate image height");
@@ -78,7 +80,7 @@ describe("UpdateImageHandler", () => {
 	it("should send rotated image when it request again", async () => {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
-		const { data: { imageUrl: imageUrl1 } } = await testBus.request({
+		const { data: { amazonUrl: amazonUrl1 } } = await testBus.request({
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
@@ -90,7 +92,7 @@ describe("UpdateImageHandler", () => {
 			}
 		});
 
-		const { data: { imageUrl: imageUrl2 } } = await testBus.request({
+		const { data: { amazonUrl: amazonUrl2 } } = await testBus.request({
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
@@ -102,7 +104,7 @@ describe("UpdateImageHandler", () => {
 			}
 		});
 
-		expect(imageUrl1).toBe(imageUrl2, "image urls should be same");
+		expect(amazonUrl1).toBe(amazonUrl2, "image urls should be same");
 	});
 
 	async function getImageSize(url) {
