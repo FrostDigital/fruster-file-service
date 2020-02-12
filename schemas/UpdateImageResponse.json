@@ -1,0 +1,16 @@
+{
+	"id": "UpdateImageResponse",
+	"description": "Response object for update an image",
+	"additionalProperties": false,
+	"properties": {
+		"url": {
+			"$ref": "UploadFileResponse#/properties/url"
+		},
+		"amazonUrl": {
+			"$ref": "UploadFileResponse#/properties/amazonUrl"
+		},
+		"key": {
+			"$ref": "UploadFileResponse#/properties/key"
+		}
+	}
+}
