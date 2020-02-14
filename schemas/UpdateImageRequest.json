@@ -8,6 +8,16 @@
 			"type": "number",
 			"min": 0,
 			"max": 360
+		},
+		"width": {
+			"description": "Width need to process",
+			"type": "number",
+			"min": 0
+		},
+		"height": {
+			"description": "Height need to process",
+			"type": "number",
+			"min": 0
 		}
 	}
 }

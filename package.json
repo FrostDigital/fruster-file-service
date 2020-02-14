@@ -7,11 +7,11 @@
 		"test": "nyc --reporter=html --check-coverage --lines 80 node ./spec/support/jasmine-runner.js"
 	},
 	"dependencies": {
-		"aws-sdk": "2.612.0",
+		"aws-sdk": "2.618.0",
 		"body-parser": "1.19.0",
 		"cors": "2.8.5",
 		"express": "4.17.1",
-		"file-type": "14.1.1",
+		"file-type": "14.1.2",
 		"fruster-bus": "0.5.10",
 		"fruster-errors": "0.0.7",
 		"fruster-health": "0.0.14",
@@ -21,7 +21,7 @@
 		"multer": "1.4.2",
 		"multer-s3": "2.9.0",
 		"rebuild": "0.1.2",
-		"request": "2.88.0",
+		"request": "2.88.1",
 		"s3-download-stream": "1.1.1",
 		"sharp": "0.24.0",
 		"uuid": "3.4.0"
