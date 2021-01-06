@@ -8,3 +8,5 @@ jasmine.getEnv().addReporter(new SpecReporter()); // add jasmine-spec-reporter
 jRunner.loadConfigFile("./spec/support/jasmine.json"); // load jasmine.json configuration
 jRunner.execute();
 jRunner.randomizeTests(true);
+
+export default {};

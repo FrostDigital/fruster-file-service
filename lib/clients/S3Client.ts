@@ -1,22 +1,22 @@
-const AWS = require("aws-sdk");
-const ms = require("ms");
-const log = require("fruster-log");
-const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = require("../../conf");
-const https = require("https");
+import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
+import AWS from 'aws-sdk';
+import * as log from 'fruster-log';
+import conf from '../../conf';
+import ms from 'ms';
+import https from "https";
 
-class S3Client {
+const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
 
-	constructor() {
-		this.bucket = s3Bucket;
-		this.s3 = new AWS.S3({
-			accessKeyId: awsAccessKeyId,
-			secretAccessKey: awsSecretAccessKey,
-			sslEnabled: true,
-			httpOptions: {
-				agent: new https.Agent({ keepAlive: true })
-			}
-		});
-	}
+class S3Client {	
+
+	s3 = new AWS.S3({
+		accessKeyId: awsAccessKeyId,
+		secretAccessKey: awsSecretAccessKey,
+		sslEnabled: true,
+		httpOptions: {
+			agent: new https.Agent({ keepAlive: true })
+		}
+	});
 
 	/**
 	 * Check file is exist
@@ -25,9 +25,9 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async checkIfExists(fileName) {
+	async checkIfExists(fileName: string) {
 		const params = {
-			Bucket: this.bucket,
+			Bucket: s3Bucket,
 			Key: fileName
 		};
 
@@ -53,9 +53,9 @@ class S3Client {
 	 *
 	 * @returns {Promise<Object>}
 	 */
-	async uploadFile(fileName, mime, data) {
-		const params = {
-			Bucket: this.bucket,
+	async uploadFile(fileName: string, data: Buffer, mime?: string,): Promise<ManagedUpload.SendData> {
+		const params: S3.Types.PutObjectRequest = {
+			Bucket: s3Bucket,
 			Key: fileName,
 			ContentType: mime,
 			Body: data,
@@ -63,7 +63,7 @@ class S3Client {
 		};
 
 		return new Promise((resolve, reject) => {
-			this.s3.upload(params, function (err, data) {
+			this.s3.upload(params, function (err: Error, data: ManagedUpload.SendData) {
 				if (err) reject(err);
 				else resolve(data);
 			});
@@ -76,17 +76,16 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async getSignedUrl(key, expires = 60 * 1000) {
+	async getSignedUrl(key: string, expires = 60 * 1000) {
 		const params = {
-			Bucket: this.bucket,
+			Bucket: s3Bucket,
 			Key: key,
-			//@ts-ignore
-			Expires: ms(expires) / 1000
+			Expires: expires / 1000 // Note: AWS sets expires in seconds
 		};
 
 		return new Promise((resolve, reject) => {
 
-			this.s3.getSignedUrl("getObject", params, (err, url) => {
+			this.s3.getSignedUrl("getObject", params, (err, url) => { 
 				if (err) {
 					reject(err);
 					return;
@@ -104,9 +103,9 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async deleteObject(file) {
+	async deleteObject(file: string) {
 		const params = {
-			Bucket: this.bucket,
+			Bucket: s3Bucket,
 			Key: file
 		};
 
@@ -125,9 +124,9 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async deleteObjects(files) {
-		const params = {
-			Bucket: this.bucket,
+	async deleteObjects(files: ObjectIdentifierList) {
+		const params: S3.Types.DeleteObjectsRequest = {
+			Bucket: s3Bucket,
 			Delete: {
 				Objects: files,
 				Quiet: false
@@ -143,4 +142,4 @@ class S3Client {
 	}
 }
 
-module.exports = S3Client;
+export default S3Client;

@@ -1,16 +1,12 @@
-const S3Client = require("../clients/S3Client");
-const { Request: ExpRequest } = require("../../node_modules/express/lib/request.js");
+import { FrusterRequest } from "fruster-bus";
+import S3Client from "../clients/S3Client";
 
 class GetSignedUrlHandler {
 
-	constructor() {
-		this.s3 = new S3Client();
-	}
+	s3 = new S3Client();
 
-	/**
-	 * @param {ExpRequest} req - http request
-	 */
-	async handle({ data: { file, expires } }) {
+	
+	async handle({ data: { file, expires } }: FrusterRequest<{file: string, expires: number}>) {
 		return {
 			data: {
 				url: await this.s3.getSignedUrl(this._sanitizeFilePath(file), expires)
@@ -18,11 +14,7 @@ class GetSignedUrlHandler {
 		};
 	}
 
-	/**
-	 *
-	 * @param {String} filePath
-	 */
-	_sanitizeFilePath(filePath) {
+	_sanitizeFilePath(filePath: string) {
 		filePath = filePath.trim();
 
 		if (filePath.includes("http://") || filePath.includes("https://")) {
@@ -38,4 +30,4 @@ class GetSignedUrlHandler {
 
 }
 
-module.exports = GetSignedUrlHandler;
+export default GetSignedUrlHandler;

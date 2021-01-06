@@ -1,8 +1,10 @@
+import bus from 'fruster-bus';
+import {start} from '../file-service';
+import constants from '../lib/constants';
+import uuid from 'uuid';
+
+// @ts-ignore
 const testUtils = require("fruster-test-utils");
-const bus = require("fruster-bus");
-const fileService = require("../file-service");
-const constants = require("../lib/constants");
-const uuid = require("uuid");
 
 describe("Get signed url", () => {
 
@@ -10,11 +12,12 @@ describe("Get signed url", () => {
 
 	testUtils.startBeforeAll({
 		mockNats: true,
+		// @ts-ignore
 		service: async (connection) => {
 			do {
 				httpPort = Math.floor(Math.random() * 6000 + 2000);
 			} while (httpPort === 3410);
-			return await fileService.start(connection.natsUrl, httpPort);
+			return await start(connection.natsUrl, httpPort);
 		},
 		bus
 	});

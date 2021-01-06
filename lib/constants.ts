@@ -1,6 +1,6 @@
-const conf = require("../conf");
+import conf from "../conf";
 
-module.exports = {
+export default {
 
 	serviceName: conf.serviceName,
 

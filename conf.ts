@@ -1,16 +1,20 @@
-const ms = require("ms");
 
-const configExports = {
+import ms from "ms";
+
+const s3Bucket = process.env.S3_BUCKET || "fruster-uploads";
+const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3410;
+
+export default {
 
 	// NATS servers, set multiple if using cluster
 	// Example: `["nats://10.23.45.1:4222", "nats://10.23.41.8:4222"]`
 	bus: parseArray(process.env.BUS) || ["nats://localhost:4222"],
 
 	// HTTP port
-	port: process.env.PORT ? Number.parseInt(process.env.PORT) : 3410,
+	port,
 
 	// Name of S3 bucket
-	s3Bucket: process.env.S3_BUCKET || "fruster-uploads",
+	s3Bucket,
 
 	/**
 	 * Allow origin for CORS
@@ -51,32 +55,24 @@ const configExports = {
 
 	// Cache control header set on uploaded files
 	cacheControlMaxAgeSec: ms(process.env.CACHE_CONTROL_MAX_AGE || "24h") / 1000,
+	
+	// Image base uri for where images are saved in aws
+	imageBaseUri: process.env.AWS_IMAGE_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + s3Bucket,
+	
+	// Image proxy uri to be returned for proxied images
+	proxyImageUrl: process.env.PROXY_IMAGE_URL || "http://localhost:" + port,
+	
+	serviceHttpUrl: process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + port
 }
 
-// Image base uri for where images are saved in aws
-configExports.imageBaseUri = process.env.AWS_IMAGE_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + configExports.s3Bucket;
 
-// Image proxy uri to be returned for proxied images
-configExports.proxyImageUrl = process.env.PROXY_IMAGE_URL || "http://localhost:" + configExports.port;
-
-configExports.serviceHttpUrl = process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + configExports.port;
-
-module.exports = configExports;
-
-
-/**
- * @param {String} str - string to parse to array
- */
-function parseArray(str) {
+function parseArray(str?: string) {
 	if (str) {
 		return str.split(",");
 	}
 	return null;
 }
 
-/**
- * @param {String} str - string to parse to boolean
- */
-function parseBool(str) {
+function parseBool(str: string) {
 	return str == "true" || parseInt(str) == 1;
 }

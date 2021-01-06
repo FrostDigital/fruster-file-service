@@ -1,16 +1,22 @@
-const log = require("fruster-log");
-const utils = require("../util/utils");
+import * as log from "fruster-log";
+import { parseBusMessage } from "../util/utils";
+import conf from "../../conf";
+import constants from "../constants";
+import { Request } from "express";
+
 const errors = require("../errors");
-const { Request: ExpRequest } = require("../../node_modules/express/lib/request.js");
-const conf = require("../../conf");
-const constants = require("../constants");
+
+interface UploadHttpRequest extends Request {
+	file: Express.MulterS3.File;
+	fileUploadError: Error;
+}
 
 class UploadFileHandler {
 
 	/**
 	 * @param {ExpRequest} req - http request
 	 */
-	async handle({ fileUploadError, file, headers }) {
+	async handle({ fileUploadError, file, headers }: UploadHttpRequest) {
 		try {
 			if (fileUploadError)
 				throw fileUploadError;
@@ -20,7 +26,7 @@ class UploadFileHandler {
 			}
 
 			// The original bus message is passed as string in header "data"
-			const busMessage = utils.parseBusMessage(headers.data);
+			const busMessage = parseBusMessage(headers.data as string);
 
 			const respBody = {
 				status: 201,
@@ -31,7 +37,7 @@ class UploadFileHandler {
 					key: file.key,
 					originalName: file.originalname,
 					mimeType: file.mimetype,
-					size: file.size
+					size: file.size,
 				}
 			};
 
@@ -42,6 +48,7 @@ class UploadFileHandler {
 
 				log.debug("Uploaded file", file.originalname, "->", file.location, "as", proxyUrl);
 
+				// @ts-ignore
 				respBody.data.amazonUrl = respBody.data.url;
 				respBody.data.url = proxyUrl;
 			} else {
@@ -57,4 +64,4 @@ class UploadFileHandler {
 
 }
 
-module.exports = UploadFileHandler;
+export default UploadFileHandler;
