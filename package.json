@@ -14,8 +14,9 @@
 		"cors": "2.8.5",
 		"express": "4.17.1",
 		"file-type": "14.1.2",
-		"fruster-bus": "0.7.11",
-		"fruster-errors": "0.0.7",
+		"fruster-bus": "0.7.12",
+		"fruster-decorators": "^0.1.6",
+		"fruster-errors": "0.1.2",
 		"fruster-health": "0.0.14",
 		"fruster-log": "0.1.0",
 		"mime-types": "2.1.26",
@@ -52,10 +53,7 @@
 	"nyc": {
 		"exclude": [
 			"spec/*",
-			"lib/errors.js",
-			"repo/InMemoryImageCacheRepo.js",
-			"conf.js",
-			"errors.js"
+			"lib/errors.ts"
 		]
 	}
 }

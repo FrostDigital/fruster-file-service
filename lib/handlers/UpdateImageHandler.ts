@@ -7,7 +7,7 @@ import conf from '../../conf';
 import S3Client from "../clients/S3Client";
 import { getImageFileNameFromQuery } from "../util/utils";
 import constants from "../constants";
-const errors = require("../errors");
+import errors from "../errors";
 
 
 class UpdateImageHandler {
@@ -63,7 +63,7 @@ class UpdateImageHandler {
 					this.repo.add(imageName, data, amazonUrl);
 				} catch (err) {
 					log.error(err);
-					throw errors.throw("INTERNAL_SERVER_ERROR");
+					throw errors.internalServerError();
 				}
 			}
 		}

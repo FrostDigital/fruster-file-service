@@ -156,7 +156,7 @@ describe("GetImageHandler", () => {
 
 		const url = await setupImageUrl();
 		const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
-		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
+		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);		
 
 		expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
 		expect(smallImageResponse.body.length > 300 && smallImageResponse.body.length < 350).toBeTruthy("smallImageResponse.body.length");

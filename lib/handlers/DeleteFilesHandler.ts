@@ -2,8 +2,7 @@ import S3Client from "../clients/S3Client";
 import * as log from "fruster-log";
 import { FrusterRequest, FrusterResponse } from "fruster-bus";
 import { getFileName } from "../util/utils";
-
-const errors = require("../errors.js");
+import errors from "../errors";
 
 class DeleteFilesHandler {
 
@@ -27,7 +26,7 @@ class DeleteFilesHandler {
 			}
 		} catch (err) {
 			log.error(err);
-			throw errors.throw("INTERNAL_SERVER_ERROR");
+			throw errors.internalServerError();
 		}
 
 		return { status: 200 };

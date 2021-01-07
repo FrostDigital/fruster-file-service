@@ -12,6 +12,7 @@ export const httpOrHttps = conf.imageBaseUri.includes("https") ? https : http;
  * Sends an fruster error as a http response. 
  */
 export function sendError(res: Response, error:any) {
+	console.log("sending error", error);
 	res.status(error.status || 500).json(error);
 }
 

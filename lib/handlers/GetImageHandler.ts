@@ -30,28 +30,29 @@ class GetImageHandler {
 	 * Handles getting proxied and processed images
 	 */
 	async handle({ params: { imageName }, query: { height, width, angle } }: Request<{imageName:string}, any, {height: string, width: string, angle: string}>, res: Response) {
-			
 		const heightNum = this.parseNumberFromQuery(height);
 		const widthNum = this.parseNumberFromQuery(width);
 		const angleNum =  this.parseNumberFromQuery(angle);
 
+		log.debug(`GET image ${imageName}, height: ${heightNum} width: ${widthNum} angle: ${angleNum}`);
+
 		/**
-		 * Set HTTP cache control header on response, not that this will
+		 * Set HTTP cache control header on response, note that this will
 		 * be unset in case of error response
 		 */
 		res.set(CACHE_CONTROL_HEADER, "max-age=" + conf.cacheControlMaxAgeSec);
 
 		/**
-		 * If no query provided we only get the image.
+		 * If no query provided we only get the image from S3.
 		 */
 		if (this._noQuery({ height: heightNum, width: widthNum, angle: angleNum }))
-			return this._getImageByUrl(res, `${conf.imageBaseUri}/${imageName}`);
+			return this._getImageByUrl(res, `${conf.imageBaseUri}/${imageName}`);	
 
 		/**
 		 * Checks in memory image cache repo if an url to the processed image exists.
 		 */
 		const imageUrl = this.repo.get(imageName, { height: heightNum, width: widthNum, angle: angleNum });
-
+		
 		if (imageUrl) {
 			/**
 			 * If url exists we fetch that image right away.
@@ -106,8 +107,8 @@ class GetImageHandler {
 			widthNum = conf.maxQueryRescaleSize;
 
 		if (heightNum && heightNum > conf.maxQueryRescaleSize)
-		heightNum = conf.maxQueryRescaleSize;
-
+			heightNum = conf.maxQueryRescaleSize;
+						
 		try {
 			const { amazonUrl, updatedImageBuffer } = await this.fileManager.processImage(imageName, { height, width, angle });
 			this.repo.add(imageName, { height, width, angle }, amazonUrl);
@@ -137,15 +138,17 @@ class GetImageHandler {
 	}
 
 	/**
-	 * Checks if request has any query (Any query we allow).
-	 *
-	 * @param {Object} query
+	 * Checks if request has any query (any query we allow).
 	 */
-	_noQuery({ height, width, angle }: {height: number, width: number, angle: number}) {
-		if (!height && !width && !angle)
-			return true;
+	_noQuery({ height, width, angle }: {height: number, width: number, angle: number}) {		
+		if (width && width > 0)
+			return false;
+		else if (height && height > 0) 
+			return false;
+		else if (angle && angle > 0 && angle < 360)
+			return false;
 
-		return (height <= 0 && width <= 0) || (angle <= 0 || angle >= 360);
+		return true;
 	}
 
 	/**

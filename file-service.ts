@@ -1,6 +1,6 @@
 import express from "express";
 import * as log from "fruster-log";
-import bus, { FrusterRequest } from "fruster-bus";
+import bus from "fruster-bus";
 import * as fs from "fs";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -8,24 +8,20 @@ import conf from "./conf";
 import * as utils from "./lib/util/utils";
 import constants from "./lib/constants";
 import docs from "./lib/docs";
+import errors from "./lib/errors";
 
 import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import DeleteFilesHandler from "./lib/handlers/DeleteFilesHandler";
 import GetImageHandler from "./lib/handlers/GetImageHandler";
 import GetSignedUrlHandler from "./lib/handlers/GetSignedUrlHandler";
-import UploadFileHandler from './lib/handlers/UploadFileHandler';
+import UploadFileHandler from "./lib/handlers/UploadFileHandler";
 import http from "http";
-
-const app = express();
+import FileManager from "./lib/managers/FileManager";
+import InMemoryImageCacheRepo from "./lib/repos/InMemoryImageCacheRepo";
 const upload = require("./upload-config");
 
+const app = express();
 const dateStarted = new Date();
-
-const deprecatedErrors = require("./errors");
-
-import InMemoryImageCacheRepo from "./lib/repos/InMemoryImageCacheRepo";
-
-const FileManager = require("./lib/managers/FileManager");
 
 
 export async function start(busAddress: string, httpServerPort: number) {
@@ -87,12 +83,12 @@ export async function start(busAddress: string, httpServerPort: number) {
 						if (err.code == "LIMIT_FILE_SIZE") {
 							return utils.sendError(
 								res,
-								deprecatedErrors.fileTooLarge(conf.maxFileSize)
+								errors.get("FILE_TOO_LARGE", conf.maxFileSize)
 							);
 						} else {
 							return utils.sendError(
 								res,
-								deprecatedErrors.unknownError(err)
+								errors.internalServerError(err)								
 							);
 						}
 					});
@@ -112,9 +108,8 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 	function registerBusEndpoints() {
 		const inMemoryImageCacheRepo = new InMemoryImageCacheRepo();
-		const fileManager = new FileManager(inMemoryImageCacheRepo);
+		const fileManager = new FileManager();
 
-		const getSignedUrl = new GetSignedUrlHandler();
 		const deleteFilesHandler = new DeleteFilesHandler();
 		const updateImageHandler = new UpdateImageHandler(
 			inMemoryImageCacheRepo,
@@ -141,27 +136,22 @@ export async function start(busAddress: string, httpServerPort: number) {
 			responseSchema: constants.schemas.response.UPDATE_IMAGE,
 			docs: docs.http.UPDATE_IMAGE,
 			mustBeLoggedIn: conf.mustBeLoggedIn,
-			handle: (req: FrusterRequest<any>) => updateImageHandler.handleHttp(req),
+			handle: (req: any) => updateImageHandler.handleHttp(req),
 		});
-
-		bus.subscribe({
-			subject: constants.endpoints.service.GET_SIGNED_URL,
-			responseSchema: constants.schemas.response.GET_SIGNED_URL,
-			handle: (req) => getSignedUrl.handle(req),
-			docs: docs.service.GET_SIGNED_URL,
-		});
-
+		
 		bus.subscribe({
 			subject: constants.endpoints.service.DELETE_FILE,
 			requestSchema: constants.schemas.request.DELETE_FILES,
 			docs: docs.service.DELETE_FILE,
-			handle: (req) => deleteFilesHandler.handle(req),
+			handle: (req: any) => deleteFilesHandler.handle(req),
 		});
+		
+		new GetSignedUrlHandler();		
 	}
 
 	function registerHttpEndpoints() {
 		const inMemoryImageCacheRepo = new InMemoryImageCacheRepo();
-		const fileManager = new FileManager(inMemoryImageCacheRepo);
+		const fileManager = new FileManager();
 
 		const uploadFileHandler = new UploadFileHandler();
 		const getImageHandler = new GetImageHandler(
@@ -181,7 +171,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 				} catch (err) {
 					return utils.sendError(
 						res,
-						deprecatedErrors.unknownError()
+						errors.get("INTERNAL_SERVER_ERROR", err)								
 					);
 				}
 			});
@@ -199,7 +189,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 				} catch (err) {
 					return utils.sendError(
 						res,
-						deprecatedErrors.fileNotProvided()
+						errors.get("FILE_NOT_PROVIDED", err)								
 					);
 				}
 			}

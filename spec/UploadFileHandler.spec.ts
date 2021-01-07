@@ -28,8 +28,7 @@ describe("UploadFileHandler", () => {
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		// @ts-ignore
-		service: (connection) => fileService.start(connection.natsUrl, httpPort),
+		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus
 	});
 
@@ -73,7 +72,7 @@ describe("UploadFileHandler", () => {
 
 	it("should fail if no file was provided", async () => {
 		const { statusCode, body: { status, error } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, null);
-
+		
 		expect(statusCode).toBe(400, "statusCode");
 		expect(status).toBe(400, "status");
 		expect(error.title).toBe("No file provided", "error.title");

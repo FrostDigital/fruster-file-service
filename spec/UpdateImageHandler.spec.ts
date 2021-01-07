@@ -54,7 +54,7 @@ describe("UpdateImageHandler", () => {
 		bus
 	});
 
-	it("should possible to rotate a image", async () => {
+	it("should be possible to rotate a image", async () => {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
 		const originalImageSize = await getImageSize(url);

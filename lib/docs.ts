@@ -41,16 +41,7 @@ const docs = {
 	},
 
 	service: {
-
-		GET_SIGNED_URL: {
-			description: "Gets an temporary url for a file.",
-			errors: {
-				"file-service.500.1": "Unknown error.",
-				[`${constants.serviceName}.INTERNAL_SERVER_ERROR`]: internalServerError,
-				[`${constants.serviceName}.BAD_REQUEST`]: badRequest
-			}
-		},
-
+	
 		DELETE_FILE: {
 			description: "Delete file from s3 bucket",
 			errors: {

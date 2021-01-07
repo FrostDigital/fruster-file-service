@@ -2,17 +2,15 @@ import ImageQuery from "../models/ImageQuery";
 import uuid from "uuid";
 import * as fs from "fs";
 import constants from "../constants";
-import fileType from 'file-type';
+import fileType from "file-type";
 import conf from "../../conf";
 import S3Client from "../clients/S3Client";
 import { downloadFile, getImageFileNameFromQuery, isImage, readFile, removeFile } from "../util/utils";
 import sharp from "sharp";
-import * as log from 'fruster-log';
+import * as log from "fruster-log";
+import errors from "../errors";
 
-const errors = require('../errors.js');
 const { temporaryImageLocation, endpoints } = constants;
-
-
 
 class FileManager {
 
@@ -44,9 +42,9 @@ class FileManager {
 		/**
 		 * If buffer is something else than an image or has no file type (image not found)
 		 */
-		if (!isImage(ft?.ext)) {
+		if (!ft || !isImage(ft?.ext)) {
 			await removeFile(tempFileLocation);
-			throw errors.throw("BAD_REQUEST");
+			throw errors.badRequest();
 		}
 
 		//file name for new file
@@ -59,15 +57,17 @@ class FileManager {
 
 		// resize
 		if (query.height || query.width)
-			updatedFile = updatedFile.resize(query.width, query.height);
+			updatedFile = updatedFile.resize(query.width || null, query.height || null);
 
 		// rotate
 		if (query.angle)
 			updatedFile = updatedFile.rotate(query.angle);
 
 		// set image quality - default quality is setting, if not set proxyImagesQuality
-		if (conf.proxyImagesQuality && conf.proxyImagesQuality <= 100 && conf.proxyImagesQuality > 0)
-			updatedFile.toFormat(ft?.ext, { quality: conf.proxyImagesQuality });
+		if (conf.proxyImagesQuality && conf.proxyImagesQuality <= 100 && conf.proxyImagesQuality > 0) {
+			// @ts-ignore
+			updatedFile.toFormat(ft.ext, { quality: conf.proxyImagesQuality });
+		}
 
 		updatedFile.pipe(file);
 
@@ -77,7 +77,7 @@ class FileManager {
 		await updatedFile.end();
 
 		// upload updated file to s3
-		const { Location, Key } = await this.s3.uploadFile(fileNameWithQuery, updatedImageBuffer, ft?.mime);
+		const { Location, Key } = await this.s3.uploadFile(fileNameWithQuery, updatedImageBuffer, ft.mime);
 
 		log.debug(`File uploaded to ${Location}`);
 
@@ -85,7 +85,7 @@ class FileManager {
 		await removeFile(tempFileLocation);
 		await removeFile(newFileLocation);
 
-		const respBody: {amazonUrl: string, updatedImageBuffer: string, key: string, url?: string } = { amazonUrl: Location, key: Key, updatedImageBuffer };
+		const respBody: {amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string } = { amazonUrl: Location, key: Key, updatedImageBuffer };
 
 		if (conf.proxyImages)
 			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key)}`;

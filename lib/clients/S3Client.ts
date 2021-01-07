@@ -1,12 +1,10 @@
 import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
-import AWS from 'aws-sdk';
-import * as log from 'fruster-log';
-import conf from '../../conf';
-import ms from 'ms';
+import AWS from "aws-sdk";
+import * as log from "fruster-log";
+import conf from "../../conf";
 import https from "https";
 
 const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
-
 class S3Client {	
 
 	s3 = new AWS.S3({
