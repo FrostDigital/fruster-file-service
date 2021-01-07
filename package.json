@@ -5,7 +5,7 @@
 	"scripts": {
 		"start": "ts-node ./app.ts",
 		"start:watch": "ts-node-dev ./app.ts",
-		"test": "nyc --reporter=html --check-coverage --lines 90 ts-node ./spec/support/jasmine-runner.ts",
+		"test": "nyc --reporter=html --check-coverage --lines 80 ts-node ./spec/support/jasmine-runner.ts",
 		"test:watch": "ts-node-dev --respawn --no-notify ./spec/support/jasmine-runner.ts"
 	},
 	"dependencies": {
