@@ -3,7 +3,7 @@ const multer = require("multer");
 const aws = require("aws-sdk");
 const uuid = require("uuid");
 const mime = require("mime-types");
-const conf = require("./conf");
+const conf = require("./conf").default;
 
 /**
  * Config for files.

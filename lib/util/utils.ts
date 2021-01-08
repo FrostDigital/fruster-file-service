@@ -1,70 +1,46 @@
-const log = require("fruster-log");
-const fs = require("fs");
-const { imageBaseUri } = require("../../conf");
-const http = require(imageBaseUri.includes("https") ? "https" : "http");
-const { Response: ExpResponse } = require("../../node_modules/express/lib/response.js");
+import { Response } from "express";
+import * as log from "fruster-log";
+import * as fs from "fs";
+import conf from "../../conf";
+import http from "http";
+import https from "https";
+import ImageQuery from "../models/ImageQuery";
 
-module.exports = {
-
-	sendError,
-
-	parseBusMessage,
-
-	getImageFileNameFromQuery,
-
-	readFile,
-
-	removeFile,
-
-	getFileName,
-
-	isImage,
-
-	downloadFile
-
-};
+export const httpOrHttps = conf.imageBaseUri.includes("https") ? https : http;
 
 /**
- * Sends an fruster error as a http response.
- *
- * @param {ExpResponse} res - express response object
- * @param {Object} error - error to send
+ * Sends an fruster error as a http response. 
  */
-function sendError(res, error) {
+export function sendError(res: Response, error:any) {
+	console.log("sending error", error);
 	res.status(error.status || 500).json(error);
 }
 
 /**
- * Parses bus message.
- *
- * @param {String} str - bus message to parse
+ * Parses bus message.  
  */
-function parseBusMessage(str) {
+export function parseBusMessage(str: string) {
 	return !str ? {} : JSON.parse(str);
 }
 
 /**
  * Constructs a filename for fetching / saving updated images.
  *
- * @param {String} fileName - file name of file.
  * @param {Object} query - query to add to filename.
  */
-function getImageFileNameFromQuery(fileName, { height = null, width = null, angle = null }) {
+export function getImageFileNameFromQuery(fileName:string, { height, width, angle }: ImageQuery) {
 	const splitFileName = fileName.split(".");
 	const fileNameWithoutFileType = fileName.replace("." + splitFileName[splitFileName.length - 1], "");
 	const fileType = fileName.split(".")[splitFileName.length - 1];
 
 	const queryArray = [];
 
-	if (height || width) {
-		if (height instanceof Array)
-			height = height[0];
-
-		if (width instanceof Array)
-			width = width[0];
-
+	if (width) {
 		queryArray.push(`w-${width}`);
-		queryArray.push(`h-${height}`);
+	}
+
+	if (height) {
+		queryArray.push(`h-${height}`);	
 	}
 
 	if (angle)
@@ -78,8 +54,8 @@ function getImageFileNameFromQuery(fileName, { height = null, width = null, angl
  *
  * @param {String} path - path to file to read.
  */
-function readFile(path) {
-	return new Promise((resolve, reject) => {
+export function readFile(path: string) {
+	return new Promise<Buffer>((resolve, reject) => {
 		fs.readFile(path, (err, buffer) => {
 			err ? reject(err) : resolve(buffer);
 		});
@@ -87,13 +63,11 @@ function readFile(path) {
 }
 
 /**
- * An async wrapper for fs.unlink
- *
- * @param {String} path - path to file to remove.
+ * An async wrapper for fs.unlink 
  */
-function removeFile(path) {
+export function removeFile(path: string) {
 	log.debug("removing file", path);
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		fs.unlink(path, (err) => {
 			err ? reject(err) : resolve();
 		});
@@ -107,18 +81,15 @@ function removeFile(path) {
  *
  * @return {String} Eg: 58a9b179-89ec-4790-9fa9-16dca9e1a4f5.jpg
  */
-function getFileName(url) {
+export function getFileName(url:string) {
+	// @ts-ignore
 	return url.match(/\/([^\/]+)\/?$/)[1];
 }
 
 /**
- * Checks if file is of type image.
- *
- * @param {String} ext
- *
- * @returns {Boolean}
+ * Checks if file is of type image. 
  */
-function isImage(ext) {
+export function isImage(ext?: string) {
 	if (!ext)
 		return false;
 
@@ -133,11 +104,11 @@ function isImage(ext) {
  *
  * @returns {Promise<Void>}
  */
-function downloadFile(fileUrl, location) {
+export function downloadFile(fileUrl:string, location:string) {
 	const file = fs.createWriteStream(location);
 
 	return new Promise((resolve) => {
-		const getRequest = http.get(fileUrl, (response) => {
+		const getRequest = httpOrHttps.get(fileUrl, (response) => {
 			getRequest.end();
 
 			response

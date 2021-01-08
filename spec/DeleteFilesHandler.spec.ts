@@ -1,9 +1,12 @@
-const testUtils = require("fruster-test-utils");
 const specUtils = require("./support/spec-utils");
-const bus = require("fruster-bus");
-const constants = require("../lib/constants");
-const uuid = require("uuid");
-const service = require("../file-service");
+import bus from "fruster-bus";
+import constants from "../lib/constants";
+import uuid from "uuid";
+import { start } from "../file-service";
+
+// @ts-ignore
+const testUtils = require("fruster-test-utils");
+
 
 describe("Delete files", () => {
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
@@ -14,8 +17,8 @@ describe("Delete files", () => {
 	});
 
 	testUtils.startBeforeAll({
-		mockNats: true,
-		service: (connection) => service.start(connection.natsUrl, httpPort),
+		mockNats: true,	
+		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus
 	});
 

@@ -1,20 +1,24 @@
-const uuid = require("uuid");
-const path = require("path");
-const requestImageSize = require('request-image-size');
-const testUtils = require("fruster-test-utils");
+import uuid from "uuid";
+import path from "path";
+import bus, {testBus} from "fruster-bus";
+import constants from "../lib/constants";
+import conf from "../conf";
+import { start } from "../file-service";
+
 const specUtils = require("./support/spec-utils");
-const bus = require("fruster-bus");
-const testBus = require("fruster-bus").testBus;
-const constants = require("../lib/constants");
-const conf = require("../conf");
-const confBackup = Object.assign({}, conf);
-const service = require("../file-service");
+
+// @ts-ignore
+const requestImageSize = require("request-image-size");
+// @ts-ignore
+const testUtils = require("fruster-test-utils");
+
+const confBackup = {...conf};
 
 describe("UpdateImageHandler", () => {
-	let httpPort;
-	let baseUri;
+	let httpPort = 0;
+	let baseUri = "";
+	let originalTimeout = 0;
 
-	let originalTimeout;
 	beforeEach(() => {
 		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -33,6 +37,7 @@ describe("UpdateImageHandler", () => {
 
 	testUtils.startBeforeEach({
 		mockNats: true,
+		// @ts-ignore
 		service: async (connection) => {
 			do {
 				httpPort = Math.floor(Math.random() * 6000 + 3000);
@@ -44,17 +49,17 @@ describe("UpdateImageHandler", () => {
 			conf.proxyImageUrl = baseUri;
 			conf.serviceHttpUrl = baseUri;
 
-			return await service.start(connection.natsUrl, httpPort);
+			return await start(connection.natsUrl, httpPort);
 		},
 		bus
 	});
 
-	it("should possible to rotate a image", async () => {
+	it("should be possible to rotate a image", async () => {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
 		const originalImageSize = await getImageSize(url);
 
-		const { status, data } = await testBus.request({
+		const { status, data } = await testBus.request<any, any>({
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
@@ -107,10 +112,15 @@ describe("UpdateImageHandler", () => {
 		expect(amazonUrl1).toBe(amazonUrl2, "image urls should be same");
 	});
 
-	async function getImageSize(url) {
-		return new Promise((resolve, reject) => {
+	/**
+	 * @param {any} url
+	 */
+	async function getImageSize(url: string) {
+		return new Promise<{width: number, height: number}>((resolve, reject) => {
 			requestImageSize(url)
+				// @ts-ignore
 				.then(size => resolve(size))
+				// @ts-ignore
 				.catch(err => reject(err));
 		});
 	}

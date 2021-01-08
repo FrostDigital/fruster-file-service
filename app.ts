@@ -1,22 +1,21 @@
-const log = require("fruster-log");
-const fileService = require("./file-service");
-const { bus, port } = require("./conf");
-const constants = require('./lib/constants');
+import conf from "./conf";
+import constants from "./lib/constants";
+import {start} from "./file-service";
+import * as log from "fruster-log";
+
 const health = require("fruster-health");
 
 health.start();
 
 (async function () {
-
 	try {
-		await fileService.start(bus[0], port);
+		await start(conf.bus[0], conf.port);
 		log.info(`Successfully started ${constants.serviceName}`);
 	} catch (err) {
 		log.error(`Failed starting ${constants.serviceName}`, err);
 		process.exit(1);
 	}
-
-}());
+})();
 
 process.on("uncaughtException", (err) => {
 	log.error(err);

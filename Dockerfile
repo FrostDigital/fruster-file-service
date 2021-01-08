@@ -9,4 +9,5 @@ ADD . .
 RUN rm -rf node_modules && npm install -g node-gyp && npm install
 EXPOSE 3200
 
-CMD ["node", "app.js"]
+CMD ["npm", "start"]
+

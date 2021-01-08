@@ -13,15 +13,16 @@ module.exports = {
 /**
  * @param {String} baseUri
  * @param {String} path
- * @param {String|Array<String>} imageNames
+ * @param {String|Array<String>|null} imageNames
  *
- * @return {Promise}
+ * @return {Promise<any>}
  */
 async function post(baseUri, path, imageNames) {
 	const formData = {};
 
 	if (imageNames) {
 		if (Array.isArray(imageNames)) {
+			// @ts-ignore
 			formData.files = formData.map(file => fs.createReadStream(__dirname + "/" + imageNames));
 		} else {
 			formData.file = fs.createReadStream(__dirname + "/" + imageNames);
@@ -49,7 +50,7 @@ async function post(baseUri, path, imageNames) {
  * @param {String} baseUri
  * @param {String=} path
  *
- * @return {Promise}
+ * @return {Promise<any>}
  */
 async function get(baseUri, path) {
 	const url = !!path ? baseUri + path : baseUri;

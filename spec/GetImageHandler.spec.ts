@@ -1,18 +1,21 @@
-const bus = require("fruster-bus");
-const testUtils = require("fruster-test-utils");
-const fileService = require("../file-service");
+import bus from 'fruster-bus';
+import conf from '../conf';
+import { start } from '../file-service';
+import constants from '../lib/constants';
+import InMemoryImageCacheRepo from '../lib/repos/InMemoryImageCacheRepo';
+
 const specUtils = require("./support/spec-utils");
-const conf = require("../conf");
-const confBackup = Object.assign({}, conf);
-const constants = require("../lib/constants");
-const InMemoryImageCacheRepo = require("../lib/repos/InMemoryImageCacheRepo");
+// @ts-ignore
+const testUtils = require("fruster-test-utils");
+
+const confBackup = {...conf};
 
 describe("GetImageHandler", () => {
-	let httpPort;
-	let baseUri;
-	let repo;
+	let httpPort = 0;	
+	let baseUri = "";	
+	let repo: InMemoryImageCacheRepo;	
+	let originalTimeout = 0;
 
-	let originalTimeout;
 	beforeEach(() => {
 		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -28,24 +31,28 @@ describe("GetImageHandler", () => {
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
 	});
 
-	testUtils.startBeforeEach({
-		mockNats: true,
-		service: async (connection) => {
-			do {
-				httpPort = Math.floor(Math.random() * 6000 + 3000);
-			} while (httpPort === 3410);
+	testUtils.startBeforeEach(/**
+		 * @param {{ natsUrl: string; }} connection
+		 */
+		{
+			mockNats: true,
+			// @ts-ignore
+			service: async (connection) => {
+				do {
+					httpPort = Math.floor(Math.random() * 6000 + 3000);
+				} while (httpPort === 3410);
 
-			baseUri = `http://127.0.0.1:${httpPort}`;
+				baseUri = `http://127.0.0.1:${httpPort}`;
 
-			conf.proxyImages = true;
-			conf.proxyImageUrl = baseUri;
-			conf.serviceHttpUrl = baseUri;
-			repo = new InMemoryImageCacheRepo();
+				conf.proxyImages = true;
+				conf.proxyImageUrl = baseUri;
+				conf.serviceHttpUrl = baseUri;
+				repo = new InMemoryImageCacheRepo();
 
-			return await fileService.start(connection.natsUrl, httpPort);
-		},
-		bus
-	});
+				return await start(connection.natsUrl, httpPort);
+			},
+			bus
+		});
 
 	async function setupImageUrl() {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/tiny.jpg");
@@ -77,9 +84,9 @@ describe("GetImageHandler", () => {
 			 */
 			const urlSplits = url.split("/");
 			const imageName = urlSplits[urlSplits.length - 1];
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;			
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][repo._queryToString({ height: smallHeight })];
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height: smallHeight})];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -103,8 +110,8 @@ describe("GetImageHandler", () => {
 			const urlSplits = url.split("/");
 			const imageName = urlSplits[urlSplits.length - 1];
 			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
-
-			const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][repo._queryToString({ height: smallHeight })];
+		
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height: smallHeight})];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -132,7 +139,7 @@ describe("GetImageHandler", () => {
 			imageName = imageName.replace(`?height=${height}`, "");
 			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[imageName][repo._queryToString({ height: height })];
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height})];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");
@@ -149,7 +156,7 @@ describe("GetImageHandler", () => {
 
 		const url = await setupImageUrl();
 		const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
-		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
+		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);		
 
 		expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
 		expect(smallImageResponse.body.length > 300 && smallImageResponse.body.length < 350).toBeTruthy("smallImageResponse.body.length");

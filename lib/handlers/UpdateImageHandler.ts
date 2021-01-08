@@ -1,24 +1,30 @@
-const path = require("path");
-const FrusterRequest = require("fruster-bus").FrusterRequest;
-const log = require("fruster-log");
-const config = require("../../conf");
-const errors = require('../errors.js');
-const { endpoints } = require("../constants");
-const utils = require("../util/utils");
-const InMemoryImageCacheRepo = require("../repos/InMemoryImageCacheRepo");
-const FileManager = require("../managers/FileManager");
-const S3Client = require("../clients/S3Client");
+import FileManager from "../managers/FileManager";
+import InMemoryImageCacheRepo from "../repos/InMemoryImageCacheRepo";
+import { FrusterRequest, FrusterResponse } from "fruster-bus";
+import path from "path";
+import * as log from "fruster-log";
+import conf from '../../conf';
+import S3Client from "../clients/S3Client";
+import { getImageFileNameFromQuery } from "../util/utils";
+import constants from "../constants";
+import errors from "../errors";
+
 
 class UpdateImageHandler {
+
+	s3 = new S3Client();
+
+	repo: InMemoryImageCacheRepo;
+
+	fileManager: FileManager;
 
 	/**
 	* @param {InMemoryImageCacheRepo} inMemoryImageCacheRepo
 	* @param {FileManager} fileManager
 	*/
-	constructor(inMemoryImageCacheRepo, fileManager) {
+	constructor(inMemoryImageCacheRepo: InMemoryImageCacheRepo, fileManager: FileManager) {
 		this.repo = inMemoryImageCacheRepo;
-		this.fileManager = fileManager;
-		this.s3 = new S3Client();
+		this.fileManager = fileManager;		
 	}
 
 	/**
@@ -26,7 +32,7 @@ class UpdateImageHandler {
 	 *
 	 * @param {FrusterRequest} req
 	 */
-	async handleHttp({ params: { imageName }, data }) {
+	async handleHttp({ params: { imageName }, data }: FrusterRequest<any>): Promise<FrusterResponse<any>> {
 		/**
 		 * Checks in memory image cache repo if an url to the modified image exists.
 		 */
@@ -37,7 +43,7 @@ class UpdateImageHandler {
 			/**
 			 * Otherwise we prepare url to see if image exists in S3.
 			 */
-			const fileName = utils.getImageFileNameFromQuery(imageName, data);
+			const fileName = getImageFileNameFromQuery(imageName, data);
 
 			try {
 				/**
@@ -45,7 +51,7 @@ class UpdateImageHandler {
 				 */
 				await this.s3.checkIfExists(fileName);
 
-				amazonUrl = `${config.imageBaseUri}/${fileName}`;
+				amazonUrl = `${conf.imageBaseUri}/${fileName}`;
 
 				this.repo.add(imageName, data, amazonUrl);
 			} catch (err) {
@@ -57,7 +63,7 @@ class UpdateImageHandler {
 					this.repo.add(imageName, data, amazonUrl);
 				} catch (err) {
 					log.error(err);
-					throw errors.throw("INTERNAL_SERVER_ERROR");
+					throw errors.internalServerError();
 				}
 			}
 		}
@@ -65,12 +71,12 @@ class UpdateImageHandler {
 		if (!key) { //same image already exist in cache or s3
 			key = path.basename(amazonUrl);
 
-			if (config.proxyImages)
-				url = `${config.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", key)}`;
+			if (conf.proxyImages)
+				url = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", key)}`;
 		}
 
 		return { status: 200, data: { url, amazonUrl, key } };
 	}
 }
 
-module.exports = UpdateImageHandler;
+export default UpdateImageHandler;

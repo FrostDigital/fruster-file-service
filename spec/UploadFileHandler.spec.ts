@@ -1,15 +1,21 @@
-const conf = require("../conf");
-const testUtils = require("fruster-test-utils");
-const bus = require("fruster-bus");
-const fileService = require("../file-service");
+import bus from "fruster-bus";
+import conf from "../conf";
+import { start } from "../file-service";
+import constants from "../lib/constants";
+
 const specUtils = require("./support/spec-utils");
-const constants = require("../lib/constants");
+
+
+// @ts-ignore
+const testUtils = require("fruster-test-utils");
 
 describe("UploadFileHandler", () => {
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
-	let originalTimeout;
+	/** @type {number} */
+	let originalTimeout = 0;
+
 	beforeEach(() => {
 		originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -22,7 +28,7 @@ describe("UploadFileHandler", () => {
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		service: (connection) => fileService.start(connection.natsUrl, httpPort),
+		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus
 	});
 
@@ -66,7 +72,7 @@ describe("UploadFileHandler", () => {
 
 	it("should fail if no file was provided", async () => {
 		const { statusCode, body: { status, error } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, null);
-
+		
 		expect(statusCode).toBe(400, "statusCode");
 		expect(status).toBe(400, "status");
 		expect(error.title).toBe("No file provided", "error.title");
@@ -94,7 +100,7 @@ xdescribe("UploadFileHandler pt. 2", () => {
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		service: (connection) => fileService.start(connection.natsUrl, httpPort),
+		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus: bus
 	});
 
