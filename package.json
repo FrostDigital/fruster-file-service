@@ -17,8 +17,8 @@
 		"fruster-bus": "0.7.12",
 		"fruster-decorators": "^0.1.6",
 		"fruster-errors": "0.1.2",
-		"fruster-health": "0.0.14",
-		"fruster-log": "0.1.0",
+		"fruster-health": "0.2.0",
+		"fruster-log": "0.1.1",
 		"mime-types": "2.1.26",
 		"ms": "2.1.2",
 		"multer": "1.4.2",
@@ -26,7 +26,7 @@
 		"rebuild": "0.1.2",
 		"request": "2.88.0",
 		"s3-download-stream": "1.1.1",
-		"sharp": "0.24.0",
+		"sharp": "0.28.1",
 		"uuid": "3.4.0"
 	},
 	"devDependencies": {
@@ -41,7 +41,7 @@
 		"@types/request": "^2.48.5",
 		"@types/sharp": "^0.27.0",
 		"@types/uuid": "^8.3.0",
-		"fruster-test-utils": "0.5.1",
+		"fruster-test-utils": "0.6.5",
 		"jasmine": "3.5.0",
 		"jasmine-spec-reporter": "4.2.1",
 		"nyc": "15.0.0",
