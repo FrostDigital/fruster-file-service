@@ -55,13 +55,10 @@ export default {
 
 	// Cache control header set on uploaded files
 	cacheControlMaxAgeSec: ms(process.env.CACHE_CONTROL_MAX_AGE || "24h") / 1000,
-	
-	// Image base uri for where images are saved in aws
-	imageBaseUri: process.env.AWS_IMAGE_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + s3Bucket,
-	
+
 	// Image proxy uri to be returned for proxied images
 	proxyImageUrl: process.env.PROXY_IMAGE_URL || "http://localhost:" + port,
-	
+
 	serviceHttpUrl: process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + port
 }
 

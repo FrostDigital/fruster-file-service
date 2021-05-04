@@ -27,7 +27,7 @@ const docs = {
 		},
 
 		UPDATE_IMAGE: {
-			description: "Update image - for rotate an image",
+			description: "Updates image width, height and/or rotation. Will process images and save in S3.",
 			errors: {
 				INTERNAL_SERVER_ERROR: internalServerError,
 				BAD_REQUEST: badRequest
@@ -37,7 +37,7 @@ const docs = {
 	},
 
 	service: {
-	
+
 		DELETE_FILE: {
 			description: "Delete file from s3 bucket",
 			errors: {

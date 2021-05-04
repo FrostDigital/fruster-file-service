@@ -24,7 +24,7 @@ class UpdateImageHandler {
 	*/
 	constructor(inMemoryImageCacheRepo: InMemoryImageCacheRepo, fileManager: FileManager) {
 		this.repo = inMemoryImageCacheRepo;
-		this.fileManager = fileManager;		
+		this.fileManager = fileManager;
 	}
 
 	/**
@@ -37,6 +37,7 @@ class UpdateImageHandler {
 		 * Checks in memory image cache repo if an url to the modified image exists.
 		 */
 		let amazonUrl = this.repo.get(imageName, data);
+
 		let url, key;
 
 		if (!amazonUrl) {
@@ -45,16 +46,14 @@ class UpdateImageHandler {
 			 */
 			const fileName = getImageFileNameFromQuery(imageName, data);
 
-			try {
-				/**
-				 * If image exists we fetch that image.
-				 */
-				await this.s3.checkIfExists(fileName);
+			amazonUrl = fileName;
 
-				amazonUrl = `${conf.imageBaseUri}/${fileName}`;
-
-				this.repo.add(imageName, data, amazonUrl);
-			} catch (err) {
+			/**
+			 * If image exists we fetch that image.
+			 */
+			if (await this.s3.checkIfExists(fileName)) {
+				this.repo.add(imageName, data, fileName);
+			} else {
 				/**
 				 * Otherwise update the image
 				 */
@@ -66,16 +65,16 @@ class UpdateImageHandler {
 					throw errors.internalServerError();
 				}
 			}
+		} else {
+			if (!key) { //same image already exist in cache or s3
+				key = path.basename(amazonUrl);
+
+				if (conf.proxyImages)
+					url = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", key)}`;
+			}
 		}
-
-		if (!key) { //same image already exist in cache or s3
-			key = path.basename(amazonUrl);
-
-			if (conf.proxyImages)
-				url = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", key)}`;
-		}
-
 		return { status: 200, data: { url, amazonUrl, key } };
+
 	}
 }
 
