@@ -47,15 +47,16 @@ export async function start(busAddress: string, httpServerPort: number) {
 						const startTime = Date.now();
 
 						res.on("finish", () => {
-							const reqDuration = Date.now() - startTime;
-							const fileSizeKb =
-								req.file && req.file.size
-									? req.file.size / 1000
-									: null;
-							log.info(
-								`${req.method} ${req.path} ${fileSizeKb ? fileSizeKb + " KB" : ""
-								} -- ${res.statusCode} ${reqDuration}ms`
-							);
+							if (req.files && req.files.file && !Array.isArray(req.files.file)) {
+								const reqDuration = Date.now() - startTime;
+								const fileSizeKb = req.files.file.size / 1000;
+
+								log.info(
+									`${req.method} ${req.path} ${fileSizeKb ? fileSizeKb + " KB" : ""
+									} -- ${res.statusCode} ${reqDuration}ms`
+								);
+							}
+
 						});
 
 						next();
