@@ -85,7 +85,7 @@ class UploadFileHandler {
 		const filename = formatS3Path(path) + uuid.v4() + "." + fileExt;
 
 		try {
-			return this.s3.uploadFile(filename, file.data); // TODO: Is mime needed?
+			return this.s3.uploadFile(filename, file.data, file.mimetype);
 		} catch (err) {
 			log.error("Got error while uploading file to S3", err);
 			return errors.internalServerError("Something went wrong when upload file");
