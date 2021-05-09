@@ -184,8 +184,6 @@ describe("GetImageHandler", () => {
 		const url = conf.proxyImageUrl + "/image/olabandola.jpg";
 		const { statusCode, headers, body } = await specUtils.get(url);
 
-		console.log(body);
-
 		expect(statusCode).toBeDefined(404);
 		expect(headers["cache-control"]).toBe("max-age=0");
 	});

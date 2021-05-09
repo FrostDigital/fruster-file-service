@@ -53,7 +53,6 @@ describe("Get signed url", () => {
 					}
 				}
 			});
-			fail();
 		} catch (err) {
 			expect(err).toBeDefined();
 		}
