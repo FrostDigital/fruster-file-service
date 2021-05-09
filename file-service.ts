@@ -66,6 +66,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 					app.use(expressFileupload({
 						limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
+						abortOnLimit: true,
 						limitHandler: (req, res) => {
 							return utils.sendError(
 								res,

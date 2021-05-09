@@ -29,6 +29,13 @@ class UploadFileHandler {
 			return sendError(res, {});
 		}
 
+		if (file.size === 0) {
+			return sendError(
+				res,
+				errors.get("FILE_NOT_PROVIDED", "File is empty (zero bytes)")
+			);
+		}
+
 		const { path } = req.query;
 
 		let uploadData: aws.S3.ManagedUpload.SendData;

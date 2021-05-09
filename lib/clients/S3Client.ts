@@ -1,9 +1,9 @@
-import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
 import AWS from "aws-sdk";
+import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
 import * as log from "fruster-log";
-import conf from "../../conf";
 import https from "https";
 import mockAwsS3 from 'mock-aws-s3';
+import conf from "../../conf";
 import errors from "../errors";
 
 const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
