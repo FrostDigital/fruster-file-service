@@ -59,8 +59,8 @@ class GetImageHandler {
 			 */
 			try {
 				log.debug("Fetching URL from memory");
-				const { data } = await this.s3.getObject(imageUrl);
-				return res.send(data);
+				const { data, mimetype } = await this.s3.getObject(imageUrl);
+				return this.sendResponse(res, data, mimetype);
 			} catch (err) {
 				throw err;
 			}
