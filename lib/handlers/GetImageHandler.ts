@@ -1,3 +1,4 @@
+import { S3 } from "aws-sdk";
 import { Request, Response } from "express";
 import * as log from "fruster-log";
 import conf from "../../conf";
@@ -43,8 +44,8 @@ class GetImageHandler {
 		 * If no query provided we only get the image from S3.
 		 */
 		if (this.noQuery({ height: heightNum, width: widthNum, angle: angleNum })) {
-			const { data } = await this.s3.getObject(imageName);
-			return res.send(data);
+			const { data, mimetype } = await this.s3.getObject(imageName);
+			return this.sendResponse(res, data, mimetype);
 		}
 
 		/**
@@ -73,8 +74,8 @@ class GetImageHandler {
 			 * If processed image already exists at S3 we fetch that image.
 			 */
 			if (await this.s3.checkIfExists(fileName)) {
-				const { data } = await this.s3.getObject(fileName);
-				res.send(data);
+				const { data, mimetype } = await this.s3.getObject(fileName);
+				this.sendResponse(res, data, mimetype);
 				this.repo.add(imageName, { height: heightNum, width: widthNum, angle: angleNum }, fileName);
 				return
 			} else {
@@ -107,9 +108,9 @@ class GetImageHandler {
 			heightNum = conf.maxQueryRescaleSize;
 
 		try {
-			const { amazonUrl, updatedImageBuffer } = await this.fileManager.processImage(imageName, { height, width, angle });
+			const { amazonUrl, updatedImageBuffer, mime } = await this.fileManager.processImage(imageName, { height, width, angle });
 			this.repo.add(imageName, { height, width, angle }, amazonUrl);
-			res.end(updatedImageBuffer);
+			this.sendResponse(res, updatedImageBuffer, mime);
 		} catch (err) {
 			throw errors.notFound();
 		}
@@ -127,6 +128,11 @@ class GetImageHandler {
 			return false;
 
 		return true;
+	}
+
+	private sendResponse(res: Response, data: S3.Body, mimetype?: string) {
+		res.type(mimetype || "application/octet-stream");
+		return res.send(data);
 	}
 
 }

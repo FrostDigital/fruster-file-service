@@ -86,7 +86,7 @@ class FileManager {
 		await removeFile(tempFileLocation);
 		await removeFile(newFileLocation);
 
-		const respBody: { amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string } = { amazonUrl: Location, key: Key, updatedImageBuffer };
+		const respBody: { amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string, mime?:string } = { amazonUrl: Location, key: Key, updatedImageBuffer, mime: ft.mime };
 
 		if (conf.proxyImages)
 			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key)}`;
