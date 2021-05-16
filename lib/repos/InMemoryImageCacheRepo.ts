@@ -8,10 +8,10 @@ class InMemoryImageCacheRepo {
 	repo = new Map<string, string>();
 
 	/**
-	 * Gets an url entry based on imageName and query.	
+	 * Gets an url entry based on imageName and query.
 	 */
 	get(imageName:string, query: ImageQuery) {
-		return this.repo.get(this.getCacheKey(imageName, query));		
+		return this.repo.get(this.getCacheKey(imageName, query));
 	}
 
 	/**
@@ -22,7 +22,7 @@ class InMemoryImageCacheRepo {
 	 * @param {String} url
 	 */
 	add(imageName:string, query: ImageQuery, url:string) {
-		this.repo.set(this.getCacheKey(imageName, query), url);		
+		this.repo.set(this.getCacheKey(imageName, query), url);
 	}
 
 	/**
@@ -38,7 +38,7 @@ class InMemoryImageCacheRepo {
 	}
 
 	/**
-	 * Creates cache key based on image name and query. 	 
+	 * Creates cache key based on image name and query.
 	 * This key is used to query cache to get correct cached image url.
 	 */
 	getCacheKey(imageName: string, query: ImageQuery) {

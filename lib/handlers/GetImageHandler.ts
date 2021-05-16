@@ -58,7 +58,7 @@ class GetImageHandler {
 			 * If url exists we fetch that image right away.
 			 */
 			try {
-				log.debug("Fetching URL from memory");
+				log.debug("Fetching URL from memory", imageUrl);
 				const { data, mimetype } = await this.s3.getObject(imageUrl);
 				return this.sendResponse(res, data, mimetype);
 			} catch (err) {
@@ -82,7 +82,7 @@ class GetImageHandler {
 				/**
 				 * Otherwise we process the image
 				 */
-				await this.processImage(imageName, heightNum, widthNum, angleNum, res);
+				await this.processImage({imageName, height: heightNum, width: widthNum, angle: angleNum, fileName}, res);
 			}
 		}
 	}
@@ -95,7 +95,7 @@ class GetImageHandler {
 	/**
 	 * Rescales and/or rotates image.
 	 */
-	private async processImage(imageName: string, height: number, width: number, angle: number, res: Response) {
+	private async processImage({imageName, height, width, angle, fileName}:{imageName: string, height: number, width: number, angle: number, fileName:string}, res: Response) {
 		log.debug(`Processing image ${imageName}`);
 
 		let widthNum = width ? Math.round(width) : null;
@@ -108,8 +108,8 @@ class GetImageHandler {
 			heightNum = conf.maxQueryRescaleSize;
 
 		try {
-			const { amazonUrl, updatedImageBuffer, mime } = await this.fileManager.processImage(imageName, { height, width, angle });
-			this.repo.add(imageName, { height, width, angle }, amazonUrl);
+			const { updatedImageBuffer, mime } = await this.fileManager.processImage(imageName, { height, width, angle });
+			this.repo.add(imageName, { height, width, angle }, fileName);
 			this.sendResponse(res, updatedImageBuffer, mime);
 		} catch (err) {
 			throw errors.notFound();
