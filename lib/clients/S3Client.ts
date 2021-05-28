@@ -59,7 +59,7 @@ class S3Client {
 			Key: fileName,
 			ContentType: mime,
 			Body: data,
-			ACL: "public-read"
+			ACL: conf.s3Acl
 		};
 
 		return this.s3.upload(params).promise()
