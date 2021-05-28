@@ -1,19 +1,18 @@
-import bus from 'fruster-bus';
-import conf from '../conf';
-import { start } from '../file-service';
-import constants from '../lib/constants';
-import InMemoryImageCacheRepo from '../lib/repos/InMemoryImageCacheRepo';
+import bus from "fruster-bus";
+import conf from "../conf";
+import { start } from "../file-service";
+import constants from "../lib/constants";
+import InMemoryImageCacheRepo from "../lib/repos/InMemoryImageCacheRepo";
+import testUtils from "fruster-test-utils";
 
 const specUtils = require("./support/spec-utils");
-// @ts-ignore
-const testUtils = require("fruster-test-utils");
 
-const confBackup = {...conf};
+const confBackup = { ...conf };
 
 describe("GetImageHandler", () => {
-	let httpPort = 0;	
-	let baseUri = "";	
-	let repo: InMemoryImageCacheRepo;	
+	let httpPort = 0;
+	let baseUri = "";
+	let repo: InMemoryImageCacheRepo;
 	let originalTimeout = 0;
 
 	beforeEach(() => {
@@ -49,7 +48,7 @@ describe("GetImageHandler", () => {
 				conf.serviceHttpUrl = baseUri;
 				repo = new InMemoryImageCacheRepo();
 
-				return await start(connection.natsUrl, httpPort);
+				return await start(connection.natsUrl!, httpPort);
 			},
 			bus
 		});
@@ -84,9 +83,9 @@ describe("GetImageHandler", () => {
 			 */
 			const urlSplits = url.split("/");
 			const imageName = urlSplits[urlSplits.length - 1];
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;			
+			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height: smallHeight})];
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -110,8 +109,8 @@ describe("GetImageHandler", () => {
 			const urlSplits = url.split("/");
 			const imageName = urlSplits[urlSplits.length - 1];
 			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
-		
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height: smallHeight})];
+
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
@@ -139,7 +138,7 @@ describe("GetImageHandler", () => {
 			imageName = imageName.replace(`?height=${height}`, "");
 			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, {height})];
+			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height })];
 
 			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 			expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");
@@ -156,7 +155,7 @@ describe("GetImageHandler", () => {
 
 		const url = await setupImageUrl();
 		const smallImageResponse = await specUtils.get(`${url}?height=${smallHeight}`);
-		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);		
+		const bigImageResponse = await specUtils.get(`${url}?height=${bigHeight}&width=${bigWidth}`);
 
 		expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
 		expect(smallImageResponse.body.length > 300 && smallImageResponse.body.length < 350).toBeTruthy("smallImageResponse.body.length");
@@ -183,7 +182,7 @@ describe("GetImageHandler", () => {
 
 	it("should return 404 if image does not exist", async () => {
 		const url = conf.proxyImageUrl + "/image/olabandola.jpg";
-		const { statusCode, headers } = await specUtils.get(url);
+		const { statusCode, headers, body } = await specUtils.get(url);
 
 		expect(statusCode).toBeDefined(404);
 		expect(headers["cache-control"]).toBe("max-age=0");

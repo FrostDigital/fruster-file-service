@@ -1,21 +1,21 @@
-import ImageQuery from "../models/ImageQuery";
-import uuid from "uuid";
-import * as fs from "fs";
-import constants from "../constants";
 import fileType from "file-type";
+import * as log from "fruster-log";
+import * as fs from "fs";
+import sharp from "sharp";
+import uuid from "uuid";
 import conf from "../../conf";
 import S3Client from "../clients/S3Client";
-import { downloadFile, getImageFileNameFromQuery, isImage, readFile, removeFile } from "../util/utils";
-import sharp from "sharp";
-import * as log from "fruster-log";
+import constants from "../constants";
 import errors from "../errors";
+import ImageQuery from "../models/ImageQuery";
+import { downloadTempFile, getImageFileNameFromQuery, isImage, readFile, removeFile } from "../util/utils";
 
 const { temporaryImageLocation, endpoints } = constants;
 
 class FileManager {
 
 	s3 = new S3Client();
-	
+
 	/**
 	 * Process image - resize, rotate
 	 *
@@ -32,7 +32,8 @@ class FileManager {
 		/**
 		 * Download the file and use it to overwrite
 		 */
-		await downloadFile(`${conf.imageBaseUri}/${imageName}`, tempFileLocation);
+		await downloadTempFile(this.s3, imageName, tempFileLocation);
+
 		log.debug(`the image file is downloaded to - ${tempFileLocation}`);
 
 		const tmpImage = await readFile(tempFileLocation);
@@ -42,7 +43,7 @@ class FileManager {
 		/**
 		 * If buffer is something else than an image or has no file type (image not found)
 		 */
-		if (!ft || !isImage(ft?.ext)) {
+		if (!ft || !isImage(ft?.ext)) {
 			await removeFile(tempFileLocation);
 			throw errors.badRequest();
 		}
@@ -57,7 +58,7 @@ class FileManager {
 
 		// resize
 		if (query.height || query.width)
-			updatedFile = updatedFile.resize(query.width || null, query.height || null);
+			updatedFile = updatedFile.resize(query.width || null, query.height || null);
 
 		// rotate
 		if (query.angle)
@@ -85,7 +86,7 @@ class FileManager {
 		await removeFile(tempFileLocation);
 		await removeFile(newFileLocation);
 
-		const respBody: {amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string } = { amazonUrl: Location, key: Key, updatedImageBuffer };
+		const respBody: { amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string, mime?:string } = { amazonUrl: Location, key: Key, updatedImageBuffer, mime: ft.mime };
 
 		if (conf.proxyImages)
 			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key)}`;

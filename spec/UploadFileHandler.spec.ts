@@ -1,15 +1,17 @@
 import bus from "fruster-bus";
+import testUtils from "fruster-test-utils";
 import conf from "../conf";
 import { start } from "../file-service";
 import constants from "../lib/constants";
 
 const specUtils = require("./support/spec-utils");
 
-
-// @ts-ignore
-const testUtils = require("fruster-test-utils");
-
 describe("UploadFileHandler", () => {
+	if (!process.env.CI) {
+		console.log("Enable test by setting env var CI to any value");
+		return;
+	}
+
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
@@ -28,7 +30,9 @@ describe("UploadFileHandler", () => {
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		service: (connection: any) => start(connection.natsUrl, httpPort),
+		service: (connection: any) => {
+			start(connection.natsUrl, httpPort);
+		},
 		bus
 	});
 
@@ -36,10 +40,20 @@ describe("UploadFileHandler", () => {
 		const { statusCode, body: { data } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
 		expect(statusCode).toBe(201, "statusCode");
-		expect(data.url).toContain("https://fruster-uploads", "data.url");
+		expect(data.url).toContain("fruster-uploads", "data.url");
 		expect(data.originalName).toBe("trump.jpg", "data.originalName");
 		expect(data.key).toContain(".jpg", "data.key");
 	});
+
+	it("should upload file to s3 bucket with path", async () => {
+		const { statusCode, body: { data } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE + "?path=/foo/bar", "data/trump.jpg");
+
+		expect(statusCode).toBe(201, "statusCode");
+		expect(data.url).toContain("fruster-uploads", "data.url");
+		expect(data.originalName).toBe("trump.jpg", "data.originalName");
+		expect(data.key).toContain(".jpg", "data.key");
+	});
+
 
 	it("should upload file to s3 bucket and proxy url if proxyImages config is set to true", async () => {
 		conf.proxyImages = true;
@@ -56,7 +70,7 @@ describe("UploadFileHandler", () => {
 		const { statusCode, body: { data } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/random-file-format.fit");
 
 		expect(statusCode).toBe(201, "statusCode");
-		expect(data.url).toContain("https://fruster-uploads", "data.url");
+		expect(data.url).toContain("fruster-uploads", "data.url");
 		expect(data.originalName).toBe("random-file-format.fit", "data.originalName");
 		expect(data.key).toContain(".fit", "data.key");
 	});
@@ -65,14 +79,14 @@ describe("UploadFileHandler", () => {
 		const { statusCode, body: { data } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/file-without-extension");
 
 		expect(statusCode).toBe(201, "statusCode");
-		expect(data.url).toContain("https://fruster-uploads", "data.url");
+		expect(data.url).toContain("fruster-uploads", "data.url");
 		expect(data.originalName).toBe("file-without-extension", "data.originalName");
 		expect(data.key).toContain(".bin", "data.key");
 	});
 
 	it("should fail if no file was provided", async () => {
 		const { statusCode, body: { status, error } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, null);
-		
+
 		expect(statusCode).toBe(400, "statusCode");
 		expect(status).toBe(400, "status");
 		expect(error.title).toBe("No file provided", "error.title");

@@ -1,23 +1,18 @@
 import { Response } from "express";
 import * as log from "fruster-log";
 import * as fs from "fs";
-import conf from "../../conf";
-import http from "http";
-import https from "https";
+import S3Client from "../clients/S3Client";
 import ImageQuery from "../models/ImageQuery";
 
-export const httpOrHttps = conf.imageBaseUri.includes("https") ? https : http;
-
 /**
- * Sends an fruster error as a http response. 
+ * Sends an fruster error as a http response.
  */
-export function sendError(res: Response, error:any) {
-	console.log("sending error", error);
+export function sendError(res: Response, error: any) {
 	res.status(error.status || 500).json(error);
 }
 
 /**
- * Parses bus message.  
+ * Parses bus message.
  */
 export function parseBusMessage(str: string) {
 	return !str ? {} : JSON.parse(str);
@@ -28,7 +23,7 @@ export function parseBusMessage(str: string) {
  *
  * @param {Object} query - query to add to filename.
  */
-export function getImageFileNameFromQuery(fileName:string, { height, width, angle }: ImageQuery) {
+export function getImageFileNameFromQuery(fileName: string, { height, width, angle }: ImageQuery) {
 	const splitFileName = fileName.split(".");
 	const fileNameWithoutFileType = fileName.replace("." + splitFileName[splitFileName.length - 1], "");
 	const fileType = fileName.split(".")[splitFileName.length - 1];
@@ -40,7 +35,7 @@ export function getImageFileNameFromQuery(fileName:string, { height, width, angl
 	}
 
 	if (height) {
-		queryArray.push(`h-${height}`);	
+		queryArray.push(`h-${height}`);
 	}
 
 	if (angle)
@@ -63,7 +58,7 @@ export function readFile(path: string) {
 }
 
 /**
- * An async wrapper for fs.unlink 
+ * An async wrapper for fs.unlink
  */
 export function removeFile(path: string) {
 	log.debug("removing file", path);
@@ -81,13 +76,13 @@ export function removeFile(path: string) {
  *
  * @return {String} Eg: 58a9b179-89ec-4790-9fa9-16dca9e1a4f5.jpg
  */
-export function getFileName(url:string) {
+export function getFileName(url: string) {
 	// @ts-ignore
 	return url.match(/\/([^\/]+)\/?$/)[1];
 }
 
 /**
- * Checks if file is of type image. 
+ * Checks if file is of type image.
  */
 export function isImage(ext?: string) {
 	if (!ext)
@@ -97,26 +92,31 @@ export function isImage(ext?: string) {
 }
 
 /**
- * Download external file and save it to the temp location in the server
+ * Downloads file from S3 and saves it to the temp location on
+ * local file system.
  *
  * @param {String} fileUrl
- * @param {String} location
+ * @param {String} destination
  *
  * @returns {Promise<Void>}
  */
-export function downloadFile(fileUrl:string, location:string) {
-	const file = fs.createWriteStream(location);
+export async function downloadTempFile(s3Client: S3Client, fileUrl: string, destination: string) {
+	const file = fs.createWriteStream(destination);
+	const oFile = await s3Client.getObject(fileUrl);
+	file.write(oFile.data);
+}
 
-	return new Promise((resolve) => {
-		const getRequest = httpOrHttps.get(fileUrl, (response) => {
-			getRequest.end();
+export function formatS3Path(path: string) {
+	path = path.trim();
 
-			response
-				.pipe(file)
-				.on("close", () => {
-					file.end();
-					resolve(response);
-				});
-		});
-	});
+	if (path) {
+		if (path.startsWith("/")) {
+			path = path.substr(1);
+		}
+
+		if (!path.endsWith("/")) {
+			path = path + "/"
+		}
+	}
+	return path;
 }
