@@ -15,6 +15,7 @@ import errors from "./lib/errors";
 import DeleteFilesHandler from "./lib/handlers/DeleteFilesHandler";
 import GetFilesHandler from "./lib/handlers/GetFilesHandler";
 import GetImageHandler from "./lib/handlers/GetImageHandler";
+import GetFileByKeyHandler from "./lib/handlers/GetFileByKeyHandler";
 import GetSignedUrlHandler from "./lib/handlers/GetSignedUrlHandler";
 import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import UploadFileHandler from "./lib/handlers/UploadFileHandler";
@@ -112,10 +113,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 		const fileManager = new FileManager();
 
 		const deleteFilesHandler = new DeleteFilesHandler();
-		const updateImageHandler = new UpdateImageHandler(
-			inMemoryImageCacheRepo,
-			fileManager
-		);
+		const updateImageHandler = new UpdateImageHandler(inMemoryImageCacheRepo, fileManager);
 
 		bus.subscribe({
 			subject: constants.endpoints.http.bus.HEALTH,
@@ -157,6 +155,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 		const uploadFileHandler = new UploadFileHandler();
 		const getImageHandler = new GetImageHandler(inMemoryImageCacheRepo, fileManager);
+		const getFileByKeyHandler = new GetFileByKeyHandler();
 
 		if (busAddress.includes("mock")) {
 			/*
@@ -184,6 +183,15 @@ export async function start(busAddress: string, httpServerPort: number) {
 			try {
 				// @ts-ignore
 				await getImageHandler.handle(req, res);
+			} catch (err) {
+				res.set("Cache-Control", "max-age=0");
+				res.end(JSON.stringify(err));
+			}
+		});
+
+		app.get(constants.endpoints.http.GET_FILE, async (req, res) => {
+			try {
+				await getFileByKeyHandler.handleHttp(req, res);
 			} catch (err) {
 				res.set("Cache-Control", "max-age=0");
 				res.end(JSON.stringify(err));
