@@ -1,7 +1,7 @@
 import bus from "fruster-bus";
 import { start } from "../file-service";
 import constants from "../lib/constants";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import testUtils from "fruster-test-utils";
 const specUtils = require("./support/spec-utils");
 
@@ -30,7 +30,7 @@ describe("Get signed url", () => {
 			subject: constants.endpoints.service.GET_SIGNED_URL,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				data: {
 					file: uploadedFileFilename
 				}
@@ -47,7 +47,7 @@ describe("Get signed url", () => {
 				subject: constants.endpoints.service.GET_SIGNED_URL,
 				skipOptionsRequest: true,
 				message: {
-					reqId: uuid.v4(),
+					reqId: v4(),
 					data: {
 						file: "foo/bar"
 					}

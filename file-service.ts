@@ -6,15 +6,19 @@ import bus from "fruster-bus";
 import * as log from "fruster-log";
 import * as fs from "fs";
 import http from "http";
+
 import conf from "./conf";
 import constants from "./lib/constants";
 import docs from "./lib/docs";
 import errors from "./lib/errors";
+
 import DeleteFilesHandler from "./lib/handlers/DeleteFilesHandler";
+import GetFilesHandler from "./lib/handlers/GetFilesHandler";
 import GetImageHandler from "./lib/handlers/GetImageHandler";
 import GetSignedUrlHandler from "./lib/handlers/GetSignedUrlHandler";
 import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import UploadFileHandler from "./lib/handlers/UploadFileHandler";
+
 import FileManager from "./lib/managers/FileManager";
 import InMemoryImageCacheRepo from "./lib/repos/InMemoryImageCacheRepo";
 import * as utils from "./lib/util/utils";
@@ -144,6 +148,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 		});
 
 		new GetSignedUrlHandler();
+		new GetFilesHandler();
 	}
 
 	function registerHttpEndpoints() {
@@ -151,10 +156,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 		const fileManager = new FileManager();
 
 		const uploadFileHandler = new UploadFileHandler();
-		const getImageHandler = new GetImageHandler(
-			inMemoryImageCacheRepo,
-			fileManager
-		);
+		const getImageHandler = new GetImageHandler(inMemoryImageCacheRepo, fileManager);
 
 		if (busAddress.includes("mock")) {
 			/*

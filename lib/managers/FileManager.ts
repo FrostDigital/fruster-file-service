@@ -2,7 +2,7 @@ import fileType from "file-type";
 import * as log from "fruster-log";
 import * as fs from "fs";
 import sharp from "sharp";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import conf from "../../conf";
 import S3Client from "../clients/S3Client";
 import constants from "../constants";
@@ -25,7 +25,7 @@ class FileManager {
 	 * @returns {Promise<Object>}
 	 */
 	async processImage(imageName: string, query: ImageQuery) {
-		const operationId = `{{${uuid.v4()}}}`;
+		const operationId = `{{${v4()}}}`;
 
 		const tempFileLocation = `${temporaryImageLocation}/${imageName}${operationId}`;
 
@@ -86,7 +86,18 @@ class FileManager {
 		await removeFile(tempFileLocation);
 		await removeFile(newFileLocation);
 
-		const respBody: { amazonUrl: string, updatedImageBuffer: Buffer, key: string, url?: string, mime?:string } = { amazonUrl: Location, key: Key, updatedImageBuffer, mime: ft.mime };
+		const respBody: {
+			amazonUrl: string,
+			updatedImageBuffer: Buffer,
+			key: string,
+			url?: string,
+			mime?: string
+		} = {
+			amazonUrl: Location,
+			key: Key,
+			updatedImageBuffer,
+			mime: ft.mime
+		};
 
 		if (conf.proxyImages)
 			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key)}`;

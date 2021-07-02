@@ -3,7 +3,7 @@ import testUtils from "fruster-test-utils";
 import http from "http";
 import imageSize from 'image-size';
 import path from "path";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import conf from "../conf";
 import { start } from "../file-service";
 import constants from "../lib/constants";
@@ -62,7 +62,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},
@@ -88,7 +88,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},
@@ -100,7 +100,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},

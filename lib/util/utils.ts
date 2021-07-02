@@ -8,6 +8,7 @@ import ImageQuery from "../models/ImageQuery";
  * Sends an fruster error as a http response.
  */
 export function sendError(res: Response, error: any) {
+	log.error(error);
 	res.status(error.status || 500).json(error);
 }
 

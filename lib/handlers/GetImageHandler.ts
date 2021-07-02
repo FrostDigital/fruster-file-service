@@ -27,7 +27,9 @@ class GetImageHandler {
 	/**
 	 * Handles getting proxied and processed images
 	 */
-	async handle({ params: { imageName }, query: { height, width, angle } }: Request<{ imageName: string }, any, { height: string, width: string, angle: string }>, res: Response) {
+	async handle({
+		params: { imageName }, query: { height, width, angle }
+	}: Request<{ imageName: string }, any, { height: string, width: string, angle: string }>, res: Response) {
 		const heightNum = this.parseNumberFromQuery(height);
 		const widthNum = this.parseNumberFromQuery(width);
 		const angleNum = this.parseNumberFromQuery(angle);
@@ -82,7 +84,7 @@ class GetImageHandler {
 				/**
 				 * Otherwise we process the image
 				 */
-				await this.processImage({imageName, height: heightNum, width: widthNum, angle: angleNum, fileName}, res);
+				await this.processImage({ imageName, height: heightNum, width: widthNum, angle: angleNum, fileName }, res);
 			}
 		}
 	}
@@ -95,7 +97,7 @@ class GetImageHandler {
 	/**
 	 * Rescales and/or rotates image.
 	 */
-	private async processImage({imageName, height, width, angle, fileName}:{imageName: string, height: number, width: number, angle: number, fileName:string}, res: Response) {
+	private async processImage({ imageName, height, width, angle, fileName }: { imageName: string, height: number, width: number, angle: number, fileName: string }, res: Response) {
 		log.debug(`Processing image ${imageName}`);
 
 		let widthNum = width ? Math.round(width) : null;
@@ -131,7 +133,7 @@ class GetImageHandler {
 	}
 
 	private sendResponse(res: Response, data: S3.Body, mimetype?: string) {
-		res.type(mimetype || "application/octet-stream");
+		res.type(mimetype || "application/octet-stream");
 		return res.send(data);
 	}
 
