@@ -5,6 +5,7 @@ import https from "https";
 import mockAwsS3 from 'mock-aws-s3';
 import conf from "../../conf";
 import errors from "../errors";
+import { ListObjectResponse } from "../models/ListObjectsResponse";
 
 const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
 
@@ -137,6 +138,35 @@ class S3Client {
 		} catch (err) {
 			log.error("Failed to get object", err);
 			throw errors.notFound(`File ${key} does not exist`);
+		}
+	}
+
+	async getObjects(): Promise<ListObjectResponse> {
+		try {
+			const { Contents } = await this.s3.listObjects({ Bucket: s3Bucket, MaxKeys: 2000 }).promise();
+
+			const files: { key: string }[] = [];
+
+			Contents?.forEach(({ Key }) => {
+				if (Key)
+					files.push({ key: Key });
+			});
+
+			return { files };
+		} catch (err) {
+			log.error("Failed to get object", err);
+			throw errors.internalServerError(err);
+		}
+	}
+
+	/**
+	 * This use only for unit tests
+	 */
+	async deleteBucket() {
+		try {
+			await this.s3.deleteBucket({ Bucket: s3Bucket }).promise();
+		} catch (err) {
+			throw errors.internalServerError(err);
 		}
 	}
 }

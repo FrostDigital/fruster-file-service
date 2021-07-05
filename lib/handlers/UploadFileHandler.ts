@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
 import * as log from "fruster-log";
 import mime from "mime-types";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import conf from "../../conf";
 import S3Client from "../clients/S3Client";
 import constants from "../constants";
@@ -82,7 +82,7 @@ class UploadFileHandler {
 	private async uploadToS3(file: UploadedFile, path = ""): Promise<aws.S3.ManagedUpload.SendData> {
 		const fileSplit = file.name.split('.');
 		const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length - 1] : mime.extension(file.mimetype);
-		const filename = formatS3Path(path) + uuid.v4() + "." + fileExt;
+		const filename = formatS3Path(path) + v4() + "." + fileExt;
 
 		try {
 			return this.s3.uploadFile(filename, file.data, file.mimetype);

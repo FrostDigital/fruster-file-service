@@ -1,7 +1,7 @@
 const specUtils = require("./support/spec-utils");
 import bus from "fruster-bus";
 import constants from "../lib/constants";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import { start } from "../file-service";
 
 // @ts-ignore
@@ -17,7 +17,7 @@ describe("Delete files", () => {
 	});
 
 	testUtils.startBeforeAll({
-		mockNats: true,	
+		mockNats: true,
 		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus
 	});
@@ -31,7 +31,7 @@ describe("Delete files", () => {
 				subject: constants.endpoints.service.DELETE_FILE,
 				skipOptionsRequest: true,
 				message: {
-					reqId: uuid.v4(),
+					reqId: v4(),
 					data: { url }
 				}
 			});
@@ -55,7 +55,7 @@ describe("Delete files", () => {
 				subject: constants.endpoints.service.DELETE_FILE,
 				skipOptionsRequest: true,
 				message: {
-					reqId: uuid.v4(),
+					reqId: v4(),
 					data: { urls: [url1, url2] }
 				}
 			});
@@ -78,7 +78,7 @@ describe("Delete files", () => {
 				subject: constants.endpoints.service.DELETE_FILE,
 				skipOptionsRequest: true,
 				message: {
-					reqId: uuid.v4(),
+					reqId: v4(),
 					data: {
 						url: null
 					}
@@ -99,7 +99,7 @@ describe("Delete files", () => {
 				subject: constants.endpoints.service.DELETE_FILE,
 				skipOptionsRequest: true,
 				message: {
-					reqId: uuid.v4(),
+					reqId: v4(),
 					data: {
 						urls: []
 					}
