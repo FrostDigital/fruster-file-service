@@ -16,11 +16,11 @@ export default {
 
 			GET_IMAGE: "/image/:imageName",
 
+			GET_FILE: "/file/:fileKey",
+
 			bus: {
 
 				UPLOAD_FILE: `http.post.${conf.serviceName}.upload`,
-
-				GET_IMAGE: `http.get.${conf.serviceName}.image.:imageName.:type`,
 
 				UPDATE_IMAGE: `http.put.${conf.serviceName}.image.:imageName`,
 
