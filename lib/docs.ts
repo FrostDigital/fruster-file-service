@@ -32,6 +32,17 @@ const docs = {
 				INTERNAL_SERVER_ERROR: internalServerError,
 				BAD_REQUEST: badRequest
 			}
+		},
+
+		GET_FILE: {
+			description: "Get file by file key (name)",
+			params: {
+				fileKey: "The file key that need to get"
+			},
+			errors: {
+				INTERNAL_SERVER_ERROR: internalServerError,
+				NOT_FOUND: "File does not exist"
+			}
 		}
 
 	},
