@@ -1,22 +1,33 @@
-const specUtils = require("./support/spec-utils");
+import frusterTestUtils from "fruster-test-utils";
 import bus from "fruster-bus";
-import constants from "../lib/constants";
 import { v4 } from "uuid";
+
+import conf from "../conf";
 import { start } from "../file-service";
+import errors from "../lib/errors";
+import constants from "../lib/constants";
 
-// @ts-ignore
-const testUtils = require("fruster-test-utils");
+import specUtils from "./support/spec-utils";
 
+const confBackup = { ...conf };
 
-describe("Delete files", () => {
+describe("DeleteFilesHandler", () => {
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
+	beforeEach(() => {
+		conf.proxyImages = true;
+		conf.proxyImageUrl = baseUri;
+	});
+
 	afterEach(() => {
+		conf.proxyImages = confBackup.proxyImages;
+		conf.proxyImageUrl = confBackup.proxyImageUrl;
+
 		specUtils.removeFilesInDirectory(constants.temporaryImageLocation);
 	});
 
-	testUtils.startBeforeAll({
+	frusterTestUtils.startBeforeAll({
 		mockNats: true,
 		service: (connection: any) => start(connection.natsUrl, httpPort),
 		bus
@@ -25,51 +36,105 @@ describe("Delete files", () => {
 	it("should possible to delete a file from s3", async () => {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
 
-		setTimeout(async () => {
+		const { status } = await bus.request({
+			subject: constants.endpoints.service.DELETE_FILE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				data: { url }
+			}
+		});
 
-			const { status } = await bus.request({
-				subject: constants.endpoints.service.DELETE_FILE,
-				skipOptionsRequest: true,
-				message: {
-					reqId: v4(),
-					data: { url }
-				}
-			});
+		expect(status).toBe(200);
 
-			expect(status).toBe(200, "should be success");
-
-			const { statusCode } = await specUtils.get(url);
-
-			expect(statusCode).toBe(403, "file should delete"); //S3 give AccessDenied response rather than 404
-
-		}, 5000);
+		try {
+			await specUtils.get(url);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
 	});
 
 	it("should possible to delete a files from s3", async () => {
 		const { body: { data: { url: url1 } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
 		const { body: { data: { url: url2 } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
 
-		setTimeout(async () => {
+		const { status } = await bus.request({
+			subject: constants.endpoints.service.DELETE_FILE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				data: { urls: [url1, url2] }
+			}
+		});
 
-			const { status } = await bus.request({
-				subject: constants.endpoints.service.DELETE_FILE,
-				skipOptionsRequest: true,
-				message: {
-					reqId: v4(),
-					data: { urls: [url1, url2] }
-				}
-			});
+		expect(status).toBe(200);
 
-			expect(status).toBe(200, "should be success");
+		try {
+			await specUtils.get(url1);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
 
-			const fileResponse1 = await specUtils.get(url1);
+		try {
+			await specUtils.get(url2);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
+	});
 
-			expect(fileResponse1.statusCode).toBe(403, "file should delete"); //S3 give AccessDenied response rather than 404
+	it("should possible to delete a file from s3 using file key", async () => {
+		const { body: { data: { url, key } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
 
-			const fileResponse2 = await specUtils.get(url2);
+		const { status } = await bus.request({
+			subject: constants.endpoints.service.DELETE_FILE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				data: { file: { key } }
+			}
+		});
 
-			expect(fileResponse2.statusCode).toBe(403, "file should delete"); //S3 give AccessDenied response rather than 404
-		}, 5000);
+		expect(status).toBe(200);
+
+		try {
+			await specUtils.get(url);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
+	});
+
+	it("should possible to delete a files from s3 via file keys", async () => {
+		const { body: { data: { url: url1, key: key1 } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
+		const { body: { data: { url: url2, key: key2 } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/large-image.jpg");
+
+		const { status } = await bus.request({
+			subject: constants.endpoints.service.DELETE_FILE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				data: { files: [{ key: key1 }, { key: key2 }] }
+			}
+		});
+
+		expect(status).toBe(200);
+
+		try {
+			await specUtils.get(url1);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
+
+		try {
+			await specUtils.get(url2);
+		} catch ({ status, error }) {
+			expect(status).toBe(404);
+			expect(error.code).toBe(errors.notFound().error.code);
+		}
 	});
 
 	it("should throw error if file url not provide", async (done) => {
@@ -93,7 +158,7 @@ describe("Delete files", () => {
 		}
 	});
 
-	it("should throw error if files url not provide", async (done) => {
+	it("should throw error if files urls not provide", async (done) => {
 		try {
 			await bus.request({
 				subject: constants.endpoints.service.DELETE_FILE,

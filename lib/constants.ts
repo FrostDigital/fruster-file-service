@@ -1,4 +1,5 @@
 import conf from "../conf";
+import DeleteFilesRequest from "../schemas/DeleteFilesRequest";
 
 export default {
 
@@ -43,7 +44,7 @@ export default {
 	schemas: {
 
 		request: {
-			DELETE_FILES: "DeleteFilesRequest",
+			DELETE_FILES: DeleteFilesRequest,
 			UPDATE_IMAGE: "UpdateImageRequest"
 		},
 

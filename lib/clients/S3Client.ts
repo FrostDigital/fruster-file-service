@@ -95,10 +95,11 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async deleteObject(file: string) {
+	async deleteObject(file: string, version?: string) {
 		const params = {
 			Bucket: s3Bucket,
-			Key: file
+			Key: file,
+			VersionId: version
 		};
 
 		return this.s3.deleteObject(params).promise();
