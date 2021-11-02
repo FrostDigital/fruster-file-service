@@ -59,7 +59,10 @@ export default {
 	// Image proxy uri to be returned for proxied images
 	proxyImageUrl: process.env.PROXY_IMAGE_URL || "http://localhost:" + port,
 
-	serviceHttpUrl: process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + port
+	serviceHttpUrl: process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + port,
+
+	// If to mock S3 and instead serve files locally, should only be used in test scenarios
+	mockS3: process.env.MOCK_S3 === "true"
 }
 
 
