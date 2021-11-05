@@ -10,7 +10,7 @@ import { ListObjectResponse } from "../models/ListObjectsResponse";
 const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
 
 // Mock S3 if tests
-const TheS3Client = process.env.CI ? mockAwsS3.S3 : AWS.S3;
+const TheS3Client = process.env.CI || conf.mockS3 ? mockAwsS3.S3 : AWS.S3;
 class S3Client {
 
 	s3 = new TheS3Client({
