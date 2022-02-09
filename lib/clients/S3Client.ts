@@ -19,7 +19,8 @@ class S3Client {
 		sslEnabled: true,
 		httpOptions: {
 			agent: new https.Agent({ keepAlive: true })
-		}
+		},
+		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined
 	});
 
 	/**
