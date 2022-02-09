@@ -62,7 +62,10 @@ export default {
 	serviceHttpUrl: process.env.DEIS_APP ? "http://" + process.env.DEIS_APP + "." + process.env.DEIS_APP : "http://localhost:" + port,
 
 	// If to mock S3 and instead serve files locally, should only be used in test scenarios
-	mockS3: process.env.MOCK_S3 === "true"
+	mockS3: process.env.MOCK_S3 === "true",
+
+	// Custom S3 Endpoint if AWS is not used
+	s3Endpoint: process.env.S3_ENDPOINT,
 }
 
 
