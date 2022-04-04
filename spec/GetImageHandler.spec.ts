@@ -123,7 +123,7 @@ describe("GetImageHandler", () => {
 	it("should get image from S3 if it exists", async () => {
 		const height = 10;
 
-		let url = `${conf.serviceHttpUrl}${constants.endpoints.http.GET_IMAGE}?height=${height}`;
+		let url = `${conf.serviceHttpUrl}${constants.endpoints.http.GET_IMAGE.replace("*", "")}?height=${height}`;
 		url = url.replace(":imageName", "d31fe20a-11c9-4368-825a-02d68ac0199a.jpg");
 
 		await specUtils.get(url);
