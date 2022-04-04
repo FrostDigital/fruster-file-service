@@ -20,6 +20,7 @@ class S3Client {
 		httpOptions: {
 			agent: new https.Agent({ keepAlive: true })
 		},
+		// @ts-ignore
 		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined
 	});
 
