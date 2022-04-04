@@ -15,9 +15,9 @@ export default {
 
 			HEALTH: "/health",
 
-			GET_IMAGE: "/image/:imageName",
+			GET_IMAGE: "/image/:imageName*",
 
-			GET_FILE: "/file/:fileKey",
+			GET_FILE: "/file/:fileKey*",
 
 			bus: {
 

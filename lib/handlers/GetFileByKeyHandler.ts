@@ -10,7 +10,10 @@ class GetFileByKeyHandler {
 	/**
 	 * Handle http request.
 	 */
-	async handleHttp({ params: { fileKey } }: Request, res: Response) {
+	async handleHttp({ params }: Request, res: Response) {
+		// The route parameters is { '0': 'adfadf/fasdfa', slug: 'aaaa' } when I request /aaaa/adfadf/fasdfa . i don't know where the key '0' come from
+		const fileKey = params.fileKey + params["0"];
+
 		const { data, mimetype } = await this.s3.getObject(fileKey);
 		return this.sendResponse(res, data, mimetype);
 	}
