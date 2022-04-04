@@ -70,7 +70,7 @@ class UpdateImageHandler {
 				key = path.basename(amazonUrl);
 
 				if (conf.proxyImages)
-					url = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", key)}`;
+					url = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", key).replace("*", "")}`;
 			}
 		}
 		return { status: 200, data: { url, amazonUrl, key } };

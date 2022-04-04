@@ -28,8 +28,11 @@ class GetImageHandler {
 	 * Handles getting proxied and processed images
 	 */
 	async handle({
-		params: { imageName }, query: { height, width, angle }
-	}: Request<{ imageName: string }, any, { height: string, width: string, angle: string }>, res: Response) {
+		params, query: { height, width, angle },
+	}: Request<{ imageName: string, "0": string }, any, { height: string, width: string, angle: string }>, res: Response) {
+		// The route parameters is { '0': 'adfadf/fasdfa', slug: 'aaaa' } when I request /aaaa/adfadf/fasdfa . i don't know where the key '0' come from
+		const imageName = params.imageName + params["0"];
+
 		const heightNum = this.parseNumberFromQuery(height);
 		const widthNum = this.parseNumberFromQuery(width);
 		const angleNum = this.parseNumberFromQuery(angle);

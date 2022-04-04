@@ -100,7 +100,7 @@ class FileManager {
 		};
 
 		if (conf.proxyImages)
-			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key)}`;
+			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key).replace("*", "")}`;
 
 		return respBody;
 	}
