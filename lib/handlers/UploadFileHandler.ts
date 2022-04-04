@@ -65,7 +65,7 @@ class UploadFileHandler {
 		log.silly(respBody);
 
 		if (conf.proxyImages) {
-			const proxyUrl = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", respBody.data.key)}`;
+			const proxyUrl = `${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", respBody.data.key).replace("*", "")}`;
 
 			log.debug("Uploaded file", file.name, "->", uploadData.Location, "as", proxyUrl);
 
