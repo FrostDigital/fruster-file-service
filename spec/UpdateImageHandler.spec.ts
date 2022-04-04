@@ -1,18 +1,17 @@
-import uuid from "uuid";
+import bus, { testBus } from "fruster-bus";
+import testUtils from "fruster-test-utils";
+import http from "http";
+import imageSize from 'image-size';
 import path from "path";
-import bus, {testBus} from "fruster-bus";
-import constants from "../lib/constants";
+import { v4 } from "uuid";
 import conf from "../conf";
 import { start } from "../file-service";
+import constants from "../lib/constants";
 
 const specUtils = require("./support/spec-utils");
 
-// @ts-ignore
-const requestImageSize = require("request-image-size");
-// @ts-ignore
-const testUtils = require("fruster-test-utils");
 
-const confBackup = {...conf};
+const confBackup = { ...conf };
 
 describe("UpdateImageHandler", () => {
 	let httpPort = 0;
@@ -49,7 +48,7 @@ describe("UpdateImageHandler", () => {
 			conf.proxyImageUrl = baseUri;
 			conf.serviceHttpUrl = baseUri;
 
-			return await start(connection.natsUrl, httpPort);
+			return await start(connection.natsUrl!, httpPort);
 		},
 		bus
 	});
@@ -63,7 +62,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},
@@ -89,7 +88,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},
@@ -101,7 +100,7 @@ describe("UpdateImageHandler", () => {
 			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				params: {
 					imageName: path.basename(url)
 				},
@@ -115,14 +114,22 @@ describe("UpdateImageHandler", () => {
 	/**
 	 * @param {any} url
 	 */
-	async function getImageSize(url: string) {
-		return new Promise<{width: number, height: number}>((resolve, reject) => {
-			requestImageSize(url)
-				// @ts-ignore
-				.then(size => resolve(size))
-				// @ts-ignore
-				.catch(err => reject(err));
-		});
+	async function getImageSize(imageUrl: string): Promise<{ width?: number, height?: number }> {
+		if (imageUrl.startsWith("http")) {
+			return new Promise((resolve, reject) => {
+				http.get(imageUrl, function (response) {
+					const chunks: any[] = []
+					response.on("data", (chunk) => {
+						chunks.push(chunk)
+					}).on("end", () => {
+						const buffer = Buffer.concat(chunks);
+						resolve(imageSize(buffer));
+					}).on("error", reject);
+				});
+			});
+		} else {
+			return imageSize(imageUrl)
+		}
 	}
 
 });

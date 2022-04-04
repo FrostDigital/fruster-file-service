@@ -1,19 +1,27 @@
-import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
 import AWS from "aws-sdk";
+import S3, { ManagedUpload, ObjectIdentifierList } from "aws-sdk/clients/s3";
 import * as log from "fruster-log";
-import conf from "../../conf";
 import https from "https";
+import mockAwsS3 from 'mock-aws-s3';
+import conf from "../../conf";
+import errors from "../errors";
+import { ListObjectResponse } from "../models/ListObjectsResponse";
 
 const { s3Bucket, awsAccessKeyId, awsSecretAccessKey } = conf;
-class S3Client {	
 
-	s3 = new AWS.S3({
+// Mock S3 if tests
+const TheS3Client = process.env.CI || conf.mockS3 ? mockAwsS3.S3 : AWS.S3;
+class S3Client {
+
+	s3 = new TheS3Client({
 		accessKeyId: awsAccessKeyId,
 		secretAccessKey: awsSecretAccessKey,
 		sslEnabled: true,
 		httpOptions: {
 			agent: new https.Agent({ keepAlive: true })
-		}
+		},
+		// @ts-ignore
+		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined
 	});
 
 	/**
@@ -29,17 +37,14 @@ class S3Client {
 			Key: fileName
 		};
 
-		return new Promise((resolve, reject) => {
-			this.s3.headObject(params, (err, data) => {
-				if (err) {
-					log.debug(fileName, "does not exist");
-					reject(false);
-				} else {
-					log.debug(fileName, "does exist");
-					resolve(true);
-				}
-			});
-		});
+		try {
+			await this.s3.headObject(params).promise();
+			log.debug(fileName, "does exist");
+			return true;
+		} catch (err) {
+			log.debug(fileName, "does not exist");
+			return false;
+		}
 	}
 
 	/**
@@ -51,21 +56,16 @@ class S3Client {
 	 *
 	 * @returns {Promise<Object>}
 	 */
-	async uploadFile(fileName: string, data: Buffer, mime?: string,): Promise<ManagedUpload.SendData> {
+	async uploadFile(fileName: string, data: Buffer, mime?: string): Promise<ManagedUpload.SendData> {
 		const params: S3.Types.PutObjectRequest = {
 			Bucket: s3Bucket,
 			Key: fileName,
 			ContentType: mime,
 			Body: data,
-			ACL: "public-read"
+			ACL: conf.s3Acl
 		};
 
-		return new Promise((resolve, reject) => {
-			this.s3.upload(params, function (err: Error, data: ManagedUpload.SendData) {
-				if (err) reject(err);
-				else resolve(data);
-			});
-		});
+		return this.s3.upload(params).promise()
 	}
 
 	/**
@@ -81,17 +81,13 @@ class S3Client {
 			Expires: expires / 1000 // Note: AWS sets expires in seconds
 		};
 
-		return new Promise((resolve, reject) => {
-
-			this.s3.getSignedUrl("getObject", params, (err, url) => { 
-				if (err) {
-					reject(err);
-					return;
-				}
-				resolve(url);
-			});
-
-		});
+		// Note: Tempting to use getSignedUrlPromise, but not part of mock-aws-s3 so sticking to this
+		return new Promise((resolve, reject) => this.s3.getSignedUrl("getObject", params, (err, url) => {
+			if (err) {
+				reject(err);
+			}
+			resolve(url);
+		}));
 	}
 
 	/**
@@ -101,18 +97,14 @@ class S3Client {
 	 *
 	 * @returns {Promise}
 	 */
-	async deleteObject(file: string) {
+	async deleteObject(file: string, version?: string) {
 		const params = {
 			Bucket: s3Bucket,
-			Key: file
+			Key: file,
+			VersionId: version
 		};
 
-		return new Promise((resolve, reject) => {
-			this.s3.deleteObject(params, (err, data) => {
-				if (err) reject(err);
-				else resolve(data);
-			});
-		});
+		return this.s3.deleteObject(params).promise();
 	}
 
 	/**
@@ -131,12 +123,54 @@ class S3Client {
 			}
 		};
 
-		return new Promise((resolve, reject) => {
-			this.s3.deleteObjects(params, (err, data) => {
-				if (err) reject(err);
-				else resolve(data);
+		return this.s3.deleteObjects(params).promise();
+	}
+
+	async getObject(key: string) {
+		try {
+			const file = await this.s3.getObject({ Bucket: s3Bucket, Key: key }).promise();
+
+			if (!file.Body) {
+				throw new Error("Missing file body");
+			}
+
+			return {
+				data: file.Body,
+				mimetype: file.ContentType
+			}
+		} catch (err) {
+			log.error("Failed to get object", err);
+			throw errors.notFound(`File ${key} does not exist`);
+		}
+	}
+
+	async getObjects(): Promise<ListObjectResponse> {
+		try {
+			const { Contents } = await this.s3.listObjects({ Bucket: s3Bucket, MaxKeys: 2000 }).promise();
+
+			const files: { key: string }[] = [];
+
+			Contents?.forEach(({ Key }) => {
+				if (Key)
+					files.push({ key: Key });
 			});
-		});
+
+			return { files };
+		} catch (err) {
+			log.error("Failed to get object", err);
+			throw errors.internalServerError(err);
+		}
+	}
+
+	/**
+	 * This use only for unit tests
+	 */
+	async deleteBucket() {
+		try {
+			await this.s3.deleteBucket({ Bucket: s3Bucket }).promise();
+		} catch (err) {
+			throw errors.internalServerError(err);
+		}
 	}
 }
 

@@ -1,28 +1,31 @@
-import express from "express";
-import * as log from "fruster-log";
-import bus from "fruster-bus";
-import * as fs from "fs";
-import cors from "cors";
 import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import expressFileupload from 'express-fileupload';
+import bus from "fruster-bus";
+import * as log from "fruster-log";
+import * as fs from "fs";
+import http from "http";
+
 import conf from "./conf";
-import * as utils from "./lib/util/utils";
 import constants from "./lib/constants";
 import docs from "./lib/docs";
 import errors from "./lib/errors";
 
-import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import DeleteFilesHandler from "./lib/handlers/DeleteFilesHandler";
+import GetFilesHandler from "./lib/handlers/GetFilesHandler";
 import GetImageHandler from "./lib/handlers/GetImageHandler";
+import GetFileByKeyHandler from "./lib/handlers/GetFileByKeyHandler";
 import GetSignedUrlHandler from "./lib/handlers/GetSignedUrlHandler";
+import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import UploadFileHandler from "./lib/handlers/UploadFileHandler";
-import http from "http";
+
 import FileManager from "./lib/managers/FileManager";
 import InMemoryImageCacheRepo from "./lib/repos/InMemoryImageCacheRepo";
-const upload = require("./upload-config");
+import * as utils from "./lib/util/utils";
 
 const app = express();
 const dateStarted = new Date();
-
 
 export async function start(busAddress: string, httpServerPort: number) {
 	/**
@@ -40,7 +43,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 				.on("listening", () => {
 					log.info(
 						"File service HTTP server started and listening on port " +
-							httpServerPort
+						httpServerPort
 					);
 
 					app.use(cors({ origin: conf.allowOrigin }));
@@ -49,16 +52,16 @@ export async function start(busAddress: string, httpServerPort: number) {
 						const startTime = Date.now();
 
 						res.on("finish", () => {
-							const reqDuration = Date.now() - startTime;
-							const fileSizeKb =
-								req.file && req.file.size
-									? req.file.size / 1000
-									: null;
-							log.info(
-								`${req.method} ${req.path} ${
-									fileSizeKb ? fileSizeKb + " KB" : ""
-								} -- ${res.statusCode} ${reqDuration}ms`
-							);
+							if (req.files && req.files.file && !Array.isArray(req.files.file)) {
+								const reqDuration = Date.now() - startTime;
+								const fileSizeKb = req.files.file.size / 1000;
+
+								log.info(
+									`${req.method} ${req.path} ${fileSizeKb ? fileSizeKb + " KB" : ""
+									} -- ${res.statusCode} ${reqDuration}ms`
+								);
+							}
+
 						});
 
 						next();
@@ -66,31 +69,30 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 					app.use(bodyParser.urlencoded({ extended: false }));
 
-					app.use(
-						bodyParser.json({ limit: conf.maxFileSize + "mb" })
-					);
-
-					registerHttpEndpoints();
-
-					app.use((req, res, next) => {
-						next();
-					});
-
-					app.use((err: any, req: any, res: any, next: any) => {
-						// Do not remove `next`, express will break!
-						log.error(err);
-
-						if (err.code == "LIMIT_FILE_SIZE") {
+					app.use(expressFileupload({
+						limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
+						abortOnLimit: true,
+						limitHandler: (req, res) => {
 							return utils.sendError(
 								res,
 								errors.get("FILE_TOO_LARGE", conf.maxFileSize)
 							);
-						} else {
-							return utils.sendError(
-								res,
-								errors.internalServerError(err)								
-							);
 						}
+					}));
+
+					registerHttpEndpoints();
+
+					app.use((err: any, req: any, res: any, next: any) => {
+						// Do not remove `next`, express will break!
+						// Update from 2021: Nah, is that 👆 really true? /JS
+
+						log.error(err);
+
+						return utils.sendError(
+							res,
+							errors.internalServerError(err)
+						);
+
 					});
 
 					resolve();
@@ -111,10 +113,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 		const fileManager = new FileManager();
 
 		const deleteFilesHandler = new DeleteFilesHandler();
-		const updateImageHandler = new UpdateImageHandler(
-			inMemoryImageCacheRepo,
-			fileManager
-		);
+		const updateImageHandler = new UpdateImageHandler(inMemoryImageCacheRepo, fileManager);
 
 		bus.subscribe({
 			subject: constants.endpoints.http.bus.HEALTH,
@@ -138,15 +137,16 @@ export async function start(busAddress: string, httpServerPort: number) {
 			mustBeLoggedIn: conf.mustBeLoggedIn,
 			handle: (req: any) => updateImageHandler.handleHttp(req),
 		});
-		
+
 		bus.subscribe({
 			subject: constants.endpoints.service.DELETE_FILE,
 			requestSchema: constants.schemas.request.DELETE_FILES,
 			docs: docs.service.DELETE_FILE,
 			handle: (req: any) => deleteFilesHandler.handle(req),
 		});
-		
-		new GetSignedUrlHandler();		
+
+		new GetSignedUrlHandler();
+		new GetFilesHandler();
 	}
 
 	function registerHttpEndpoints() {
@@ -154,10 +154,8 @@ export async function start(busAddress: string, httpServerPort: number) {
 		const fileManager = new FileManager();
 
 		const uploadFileHandler = new UploadFileHandler();
-		const getImageHandler = new GetImageHandler(
-			inMemoryImageCacheRepo,
-			fileManager
-		);
+		const getImageHandler = new GetImageHandler(inMemoryImageCacheRepo, fileManager);
+		const getFileByKeyHandler = new GetFileByKeyHandler();
 
 		if (busAddress.includes("mock")) {
 			/*
@@ -171,35 +169,31 @@ export async function start(busAddress: string, httpServerPort: number) {
 				} catch (err) {
 					return utils.sendError(
 						res,
-						errors.get("INTERNAL_SERVER_ERROR", err)								
+						errors.get("INTERNAL_SERVER_ERROR", err)
 					);
 				}
 			});
 		}
 
-		app.post(
-			constants.endpoints.http.UPLOAD_FILE,
-			upload().single("file"),
-			async (req, res) => {
-				try {
-					// @ts-ignore
-					const resp = await uploadFileHandler.handle(req);
-
-					res.status(resp.status).json(resp);
-				} catch (err) {
-					return utils.sendError(
-						res,
-						errors.get("FILE_NOT_PROVIDED", err)								
-					);
-				}
-			}
-		);
+		app.post(constants.endpoints.http.UPLOAD_FILE, async (req, res) => {
+			await uploadFileHandler.handle(req, res);
+		});
 
 		app.get(constants.endpoints.http.GET_IMAGE, async (req, res) => {
 			try {
 				// @ts-ignore
 				await getImageHandler.handle(req, res);
 			} catch (err) {
+				res.set("Cache-Control", "max-age=0");
+				res.end(JSON.stringify(err));
+			}
+		});
+
+		app.get(constants.endpoints.http.GET_FILE, async (req, res) => {
+			try {
+				await getFileByKeyHandler.handleHttp(req, res);
+			} catch (err) {
+				res.set("Cache-Control", "max-age=0");
 				res.end(JSON.stringify(err));
 			}
 		});

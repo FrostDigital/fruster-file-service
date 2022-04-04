@@ -1,4 +1,5 @@
 import conf from "../conf";
+import DeleteFilesRequest from "../schemas/DeleteFilesRequest";
 
 export default {
 
@@ -16,11 +17,11 @@ export default {
 
 			GET_IMAGE: "/image/:imageName",
 
+			GET_FILE: "/file/:fileKey",
+
 			bus: {
 
 				UPLOAD_FILE: `http.post.${conf.serviceName}.upload`,
-
-				GET_IMAGE: `http.get.${conf.serviceName}.image.:imageName.:type`,
 
 				UPDATE_IMAGE: `http.put.${conf.serviceName}.image.:imageName`,
 
@@ -43,7 +44,7 @@ export default {
 	schemas: {
 
 		request: {
-			DELETE_FILES: "DeleteFilesRequest",
+			DELETE_FILES: DeleteFilesRequest,
 			UPDATE_IMAGE: "UpdateImageRequest"
 		},
 

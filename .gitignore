@@ -64,3 +64,6 @@ typings/
 .health
 
 .DStore
+
+# Where mocked s3 will "upload"
+fruster-uploads/

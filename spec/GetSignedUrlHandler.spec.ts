@@ -1,35 +1,38 @@
-import bus from 'fruster-bus';
-import {start} from '../file-service';
-import constants from '../lib/constants';
-import uuid from 'uuid';
+import bus from "fruster-bus";
+import { start } from "../file-service";
+import constants from "../lib/constants";
+import { v4 } from "uuid";
+import testUtils from "fruster-test-utils";
+const specUtils = require("./support/spec-utils");
 
-// @ts-ignore
-const testUtils = require("fruster-test-utils");
 
 describe("Get signed url", () => {
+	const httpPort = Math.floor(Math.random() * 6000 + 2000);
+	const baseUri = `http://127.0.0.1:${httpPort}`;
 
-	let httpPort;
+	let uploadedFile = "";
 
 	testUtils.startBeforeAll({
 		mockNats: true,
-		// @ts-ignore
-		service: async (connection) => {
-			do {
-				httpPort = Math.floor(Math.random() * 6000 + 2000);
-			} while (httpPort === 3410);
-			return await start(connection.natsUrl, httpPort);
-		},
+		service: (connection) => start(connection.natsUrl!, httpPort),
 		bus
 	});
 
+	beforeAll(async () => {
+		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/tiny.jpg");
+		uploadedFile = url;
+	});
+
+
 	it("should get signed url", async () => {
+		const [, uploadedFileFilename] = uploadedFile.split("/");
 		const { data: { url } } = await bus.request({
 			subject: constants.endpoints.service.GET_SIGNED_URL,
 			skipOptionsRequest: true,
 			message: {
-				reqId: uuid.v4(),
+				reqId: v4(),
 				data: {
-					file: "foo/bar"
+					file: uploadedFileFilename
 				}
 			}
 		});
@@ -38,34 +41,23 @@ describe("Get signed url", () => {
 		expect(url).toMatch("Signature=");
 	});
 
-	it("should remove first slash if set in file", async () => {
-		const { data: { url } } = await bus.request({
-			subject: constants.endpoints.service.GET_SIGNED_URL,
-			skipOptionsRequest: true,
-			message: {
-				reqId: uuid.v4(),
-				data: {
-					file: "foo/bar"
+	it("should fail if file does not exist", async () => {
+		try {
+			await bus.request({
+				subject: constants.endpoints.service.GET_SIGNED_URL,
+				skipOptionsRequest: true,
+				message: {
+					reqId: v4(),
+					data: {
+						file: "foo/bar"
+					}
 				}
-			}
-		});
+			});
+		} catch (err) {
+			expect(err).toBeDefined();
+		}
 
-		expect(url).not.toMatch("//foo/bar");
 	});
 
-	it("should remove protocol and domain if full URL is set", async () => {
-		const { data: { url } } = await bus.request({
-			subject: constants.endpoints.service.GET_SIGNED_URL,
-			skipOptionsRequest: true,
-			message: {
-				reqId: uuid.v4(),
-				data: {
-					file: "https://example.com/foo/bar"
-				}
-			}
-		});
-
-		expect(url).toMatch(`amazonaws.com/foo/bar`);
-	});
 
 });
