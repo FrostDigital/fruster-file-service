@@ -42,6 +42,8 @@ class UploadFileHandler {
 
 		const { path } = req.query;
 
+		console.log("query", req.query);
+
 		const isVideo = !conf.disableVideoEncoding && file.mimetype.includes("video/");
 
 		if (isVideo) {
