@@ -1,9 +1,9 @@
 import aws from "aws-sdk";
 import { Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
-import fileType from "file-type";
 import { FrusterResponse } from "fruster-bus";
 import * as log from "fruster-log";
+import fs from "fs";
 import mime from "mime-types";
 import { v4 } from "uuid";
 import conf from "../../conf";
@@ -11,8 +11,7 @@ import S3Client from "../clients/S3Client";
 import constants from "../constants";
 import errors from "../errors";
 import FileManager from "../managers/FileManager";
-import { formatS3Path, parseBusMessage, sendError } from "../util/utils";
-
+import { formatS3Path, parseBusMessage, removeFile, sendError } from "../util/utils";
 class UploadFileHandler {
 
 	s3 = new S3Client();
@@ -119,6 +118,8 @@ class UploadFileHandler {
 			log.debug("Uploaded file", file.name, "->", uploadData.Location);
 		}
 
+		removeFile(file.tempFilePath);
+
 		res.status(respBody.status).send(respBody);
 	}
 
@@ -126,9 +127,10 @@ class UploadFileHandler {
 		const fileSplit = file.name.split('.');
 		const fileExt = fileSplit.length > 1 ? fileSplit[fileSplit.length - 1] : mime.extension(file.mimetype);
 		const filename = formatS3Path(path) + v4() + "." + fileExt;
+		const data = fs.readFileSync(file.tempFilePath);
 
 		try {
-			return this.s3.uploadFile(filename, file.data, file.mimetype);
+			return this.s3.uploadFile(filename, Buffer.from(data), file.mimetype);
 		} catch (err) {
 			log.error("Got error while uploading file to S3", err);
 			return errors.internalServerError("Something went wrong when upload file");

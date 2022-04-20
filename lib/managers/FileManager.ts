@@ -43,7 +43,7 @@ class FileManager {
 		 */
 		await downloadTempFile(this.s3, imageName, tempFileLocation);
 
-		log.debug(`the image file is downloaded to - ${tempFileLocation}`);
+		log.debug(`Image was downloaded to - ${tempFileLocation}`);
 
 		const tmpImage = await readFile(tempFileLocation);
 
@@ -53,8 +53,9 @@ class FileManager {
 		 * If buffer is something else than an image or has no file type (image not found)
 		 */
 		if (!ft || !isImage(ft?.ext)) {
-			await removeFile(tempFileLocation);
-			throw errors.badRequest();
+			// await removeFile(tempFileLocation);
+			log.warn("Invalid/unknown mime type for image", ft);
+			throw errors.badRequest("Invalid/unknown mime type for image");
 		}
 
 		//file name for new file
@@ -212,7 +213,7 @@ class FileManager {
 						fs.unlinkSync(`${folder}/${file}`);
 					}
 
-					log.debug(`${thumbnails.length} thumbnails are created.`);
+					log.debug(`${thumbnails.length} thumbnail(s) has been created.`);
 
 					fs.rmdirSync(folder);
 

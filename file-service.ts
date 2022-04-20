@@ -36,6 +36,9 @@ export async function start(busAddress: string, httpServerPort: number) {
 	if (!fs.existsSync(constants.temporaryImageLocation)) {
 		fs.mkdirSync(constants.temporaryImageLocation);
 	}
+	 if (!fs.existsSync(constants.temporaryVideoLocation)) {
+		fs.mkdirSync(constants.temporaryVideoLocation);
+	}
 
 	function startHttpServer() {
 		return new Promise<void>((resolve, reject) => {
