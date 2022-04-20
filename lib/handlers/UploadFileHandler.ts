@@ -85,7 +85,7 @@ class UploadFileHandler {
 		let uploadData: aws.S3.ManagedUpload.SendData;
 
 		try {
-			uploadData = await this.uploadToS3(file, path ? path as string : "");
+			uploadData = await this.uploadToS3(file, path);
 		} catch (err) {
 			return sendError(res, err);
 		}
@@ -138,8 +138,6 @@ class UploadFileHandler {
 			return errors.internalServerError("Something went wrong when upload file");
 		}
 	}
-
-
 
 }
 
