@@ -7,6 +7,8 @@ export default {
 
 	temporaryImageLocation: "./images",
 
+	temporaryVideoLocation: "./videos",
+
 	endpoints: {
 
 		http: {

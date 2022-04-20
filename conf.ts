@@ -66,7 +66,23 @@ export default {
 
 	// Custom S3 Endpoint if AWS is not used
 	s3Endpoint: process.env.S3_ENDPOINT,
+
+	// Number of thumbnails that will be extracted from uploaded video
+	noOfThumbnails: Number.parseInt(process.env.NO_OF_THUMBNAILS || "0"),
+
+	// If true any uploaded videos will not be encoded and just treated as any other file
+	disableVideoEncoding: process.env.DISABLE_VIDEO_ENCODING === "true",
+
+	// 1080 (FULL HD), 720 (HD), 480, 360, 240
+	videoQuality: Number.parseInt(process.env.VIDEO_QUALITY || "480"),
+
+	// Encodes/transcodes videos to provided format. Eg - mp4, webm. Defaults to keep same format as the when uploaded.
+	videoFormat: process.env.VIDEO_FORMAT,
+
+	// Base URI to S3 bucket from where videos can be downloaded directly
+	videoBaseUri: process.env.AWS_VIDEO_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + s3Bucket
 }
+
 
 
 function parseArray(str?: string) {
