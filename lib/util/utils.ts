@@ -92,18 +92,27 @@ export function isImage(ext?: string) {
 	return ["jpg", "jpeg", "png", "gif", "tiff", "svg", "webp"].includes(ext.toLowerCase());
 }
 
+
+const folderRegexp = /(.*)\/(.*)/
+
 /**
  * Downloads file from S3 and saves it to the temp location on
  * local file system.
  *
- * @param {String} fileUrl
+ * @param {String} fileKey
  * @param {String} destination
  *
  * @returns {Promise<Void>}
  */
-export async function downloadTempFile(s3Client: S3Client, fileUrl: string, destination: string) {
+export async function downloadTempFile(s3Client: S3Client, fileKey: string, destination: string) {
+	const folderMatch = folderRegexp.exec(fileKey);
+
+	if (folderMatch) {
+		fs.mkdirSync(folderMatch[0], {recursive: true});
+	}
+
 	const file = fs.createWriteStream(destination);
-	const oFile = await s3Client.getObject(fileUrl);
+	const oFile = await s3Client.getObject(fileKey);
 	file.write(oFile.data);
 }
 
