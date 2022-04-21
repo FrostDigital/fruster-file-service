@@ -67,6 +67,7 @@ describe("IsProcessingCompleted", () => {
 
 		expect(status).toBe(200, "status");
 		expect(data.finished).toBe(true, "processing status");
+
 	});
 
 	it("should throw error if file url not provide", async () => {

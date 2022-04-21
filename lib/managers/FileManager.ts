@@ -124,8 +124,8 @@ class FileManager {
 	 processVideo(reqId: string, file: UploadedFile, pathPrefix = "") {
 		const parsedFile = path.parse(file.name);
 		const ext = conf.videoFormat ? `.${conf.videoFormat}` : parsedFile.ext;
-
-		const outputFileName = `tra_${file.name.replace(parsedFile.ext, "")}${ext}`;
+		const hash = v4().substring(0,7);
+		const outputFileName = `tra_${file.name.replace(parsedFile.ext, "")}${hash}${ext}`;
 
 		const outputFile = `${constants.temporaryVideoLocation}/${outputFileName}`;
 
@@ -177,11 +177,10 @@ class FileManager {
 	/**
 	 * Create thumbnails for the video
 	 */
-	 async createThumbnails(file: UploadedFile, pathPrefix = "") {
+	 async createThumbnails(file: UploadedFile, generatedVideoFileName: string, pathPrefix = "") {
 		const thumbnails: string[] = [];
 
-		const folder = `${constants.temporaryImageLocation}/${file.name}`;
-		// const inputFile = `${constants.temporaryVideoLocation}/${file.name}`;
+		const folder = `${constants.temporaryImageLocation}/${generatedVideoFileName}`;
 		const ext = "png";
 		const mime = "image/png";
 
@@ -190,7 +189,7 @@ class FileManager {
 				.screenshots({
 					count: conf.noOfThumbnails,
 					folder,
-					filename: `${file.name}-%s.${ext}`
+					filename: `${generatedVideoFileName}-%s.${ext}`
 				})
 				.on("error", (err) => {
 					log.error("Could not created thumbnails");
@@ -217,7 +216,7 @@ class FileManager {
 
 					fs.rmdirSync(folder);
 
-					if (!this.inMemoryVideoCacheRepo.add(file.name))
+					if (!this.inMemoryVideoCacheRepo.add(generatedVideoFileName))
 						fs.unlinkSync(file.tempFilePath);
 
 					resolve(thumbnails);

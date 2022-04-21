@@ -71,7 +71,7 @@ class UploadFileHandler {
 		}
 
 		if (conf.noOfThumbnails > 0)
-			respBody.data.thumbnails = await this.fileManager.createThumbnails(file, path);
+			respBody.data.thumbnails = await this.fileManager.createThumbnails(file, key, path);
 
 		log.info(`Successfully queued encoding of video ${location}`);
 
