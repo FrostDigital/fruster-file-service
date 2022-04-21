@@ -68,4 +68,7 @@ typings/
 # Where mocked s3 will "upload"
 fruster-uploads/
 
+# Generated files
 tmp/
+images/
+videos/
