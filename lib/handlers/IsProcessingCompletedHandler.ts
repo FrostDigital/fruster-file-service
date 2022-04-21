@@ -1,11 +1,10 @@
 import { FrusterRequest } from "fruster-bus";
 import { injectable, subscribe } from 'fruster-decorators';
+import log from "fruster-log";
 import conf from "../../conf";
 import IsProcessingCompletedRequest from "../../schemas/IsProcessingCompletedRequest";
 import IsProcessingCompletedResponse from "../../schemas/IsProcessingCompletedResponse";
 import S3Client from "../clients/S3Client";
-import { getFileName } from "../util/utils";
-import log from "fruster-log";
 
 export const SUBJECT = `${conf.serviceName}.is-processing-completed`;
 
@@ -27,12 +26,12 @@ class IsProcessingCompletedHandler {
 	})
 	async handle({ data: { url } }: FrusterRequest<{ url: string }>) {
 		try {
-			const file = getFileName(url);
+			const key = url.replace(conf.videoBaseUri, "");
 
 			return {
 				status: 200,
 				data: {
-					finished: await this.s3.checkIfExists(file)
+					finished: await this.s3.checkIfExists(key)
 				}
 			}
 		} catch (err) {
