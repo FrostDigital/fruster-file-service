@@ -99,9 +99,9 @@ xdescribe("UploadFileHandler pt. 2", () => {
 	const httpPort = Math.floor(Math.random() * 6000 + 2000);
 	const baseUri = `http://127.0.0.1:${httpPort}`;
 
-	const fs = require("fs");
-	const path = require("path");
-	const directory = "./images";
+	// const fs = require("fs");
+	// const path = require("path");
+	// const directory = "./images";
 
 	beforeEach(() => {
 		conf.maxFileSize = 0.0001;

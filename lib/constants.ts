@@ -1,11 +1,17 @@
 import conf from "../conf";
 import DeleteFilesRequest from "../schemas/DeleteFilesRequest";
+import os from "os";
+import path from "path";
 
 export default {
 
 	serviceName: conf.serviceName,
 
-	temporaryImageLocation: "./images",
+	temporaryImageLocation: path.join(os.tmpdir(), "images"),
+
+	temporaryVideoLocation: path.join(os.tmpdir(), "videos"),
+
+	temporaryUploadLocation: path.join(os.tmpdir(), "uploads"),
 
 	endpoints: {
 

@@ -15,7 +15,7 @@ export function sendError(res: Response, error: any) {
 /**
  * Parses bus message.
  */
-export function parseBusMessage(str: string) {
+export function parseBusMessage(str?: string) {
 	return !str ? {} : JSON.parse(str);
 }
 
@@ -120,4 +120,9 @@ export function formatS3Path(path: string) {
 		}
 	}
 	return path;
+}
+
+export async function sleep(ms:number) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+
 }

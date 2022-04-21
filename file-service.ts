@@ -6,23 +6,25 @@ import bus from "fruster-bus";
 import * as log from "fruster-log";
 import * as fs from "fs";
 import http from "http";
-
 import conf from "./conf";
 import constants from "./lib/constants";
 import docs from "./lib/docs";
 import errors from "./lib/errors";
-
 import DeleteFilesHandler from "./lib/handlers/DeleteFilesHandler";
+import GetFileByKeyHandler from "./lib/handlers/GetFileByKeyHandler";
 import GetFilesHandler from "./lib/handlers/GetFilesHandler";
 import GetImageHandler from "./lib/handlers/GetImageHandler";
-import GetFileByKeyHandler from "./lib/handlers/GetFileByKeyHandler";
 import GetSignedUrlHandler from "./lib/handlers/GetSignedUrlHandler";
+import IsProcessingCompletedHandler from "./lib/handlers/IsProcessingCompletedHandler";
 import UpdateImageHandler from "./lib/handlers/UpdateImageHandler";
 import UploadFileHandler from "./lib/handlers/UploadFileHandler";
-
 import FileManager from "./lib/managers/FileManager";
 import InMemoryImageCacheRepo from "./lib/repos/InMemoryImageCacheRepo";
+import InMemoryVideoCacheRepo from "./lib/repos/InMemoryVideoCacheRepo";
 import * as utils from "./lib/util/utils";
+
+
+// TODO: Add process that cleans up temp files
 
 const app = express();
 const dateStarted = new Date();
@@ -33,6 +35,9 @@ export async function start(busAddress: string, httpServerPort: number) {
 	 */
 	if (!fs.existsSync(constants.temporaryImageLocation)) {
 		fs.mkdirSync(constants.temporaryImageLocation);
+	}
+	 if (!fs.existsSync(constants.temporaryVideoLocation)) {
+		fs.mkdirSync(constants.temporaryVideoLocation);
 	}
 
 	function startHttpServer() {
@@ -72,7 +77,9 @@ export async function start(busAddress: string, httpServerPort: number) {
 					app.use(expressFileupload({
 						limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
 						abortOnLimit: true,
-						limitHandler: (req, res) => {
+						useTempFiles: true, // consider adding option for this
+						tempFileDir: constants.temporaryUploadLocation,
+						limitHandler: (_req, res) => {
 							return utils.sendError(
 								res,
 								errors.get("FILE_TOO_LARGE", conf.maxFileSize)
@@ -110,7 +117,8 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 	function registerBusEndpoints() {
 		const inMemoryImageCacheRepo = new InMemoryImageCacheRepo();
-		const fileManager = new FileManager();
+		const inMemoryVideoCacheRepo = new InMemoryVideoCacheRepo();
+		const fileManager = new FileManager(inMemoryVideoCacheRepo);
 
 		const deleteFilesHandler = new DeleteFilesHandler();
 		const updateImageHandler = new UpdateImageHandler(inMemoryImageCacheRepo, fileManager);
@@ -147,13 +155,16 @@ export async function start(busAddress: string, httpServerPort: number) {
 
 		new GetSignedUrlHandler();
 		new GetFilesHandler();
+		new IsProcessingCompletedHandler();
 	}
 
 	function registerHttpEndpoints() {
 		const inMemoryImageCacheRepo = new InMemoryImageCacheRepo();
-		const fileManager = new FileManager();
+		const inMemoryVideoCacheRepo = new InMemoryVideoCacheRepo();
 
-		const uploadFileHandler = new UploadFileHandler();
+		const fileManager = new FileManager(inMemoryVideoCacheRepo);
+
+		const uploadFileHandler = new UploadFileHandler(fileManager);
 		const getImageHandler = new GetImageHandler(inMemoryImageCacheRepo, fileManager);
 		const getFileByKeyHandler = new GetFileByKeyHandler();
 
