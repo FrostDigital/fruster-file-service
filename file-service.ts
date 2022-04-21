@@ -78,6 +78,7 @@ export async function start(busAddress: string, httpServerPort: number) {
 						limits: { fileSize: conf.maxFileSize * 1024 * 1024 },
 						abortOnLimit: true,
 						useTempFiles: true, // consider adding option for this
+						tempFileDir: constants.temporaryUploadLocation,
 						limitHandler: (_req, res) => {
 							return utils.sendError(
 								res,
