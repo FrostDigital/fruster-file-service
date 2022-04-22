@@ -92,9 +92,6 @@ export function isImage(ext?: string) {
 	return ["jpg", "jpeg", "png", "gif", "tiff", "svg", "webp"].includes(ext.toLowerCase());
 }
 
-
-const folderRegexp = /(.*)\/(.*)/
-
 /**
  * Downloads file from S3 and saves it to the temp location on
  * local file system.
@@ -105,16 +102,27 @@ const folderRegexp = /(.*)\/(.*)/
  * @returns {Promise<Void>}
  */
 export async function downloadTempFile(s3Client: S3Client, fileKey: string, destination: string) {
-	const folderMatch = folderRegexp.exec(fileKey);
 
-	if (folderMatch) {
-		fs.mkdirSync(folderMatch[0], {recursive: true});
-	}
+
+	makeDirRecursive( destination.split("/").slice(0,-1).join("/"));
 
 	const file = fs.createWriteStream(destination);
 	const oFile = await s3Client.getObject(fileKey);
 	file.write(oFile.data);
 }
+
+
+function makeDirRecursive(fullPath : string){
+	const parts = fullPath.split("/");
+	let path = "";
+	parts.forEach((p)=>{
+        if(p==="") return;
+		path+="/" + p;
+		if(!fs.existsSync(path)) fs.mkdirSync(path)
+	})
+}
+
+
 
 export function formatS3Path(path: string) {
 	path = path.trim();
