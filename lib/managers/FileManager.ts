@@ -125,7 +125,7 @@ class FileManager {
 		const parsedFile = path.parse(file.name);
 		const ext = conf.videoFormat ? `.${conf.videoFormat}` : parsedFile.ext;
 		const hash = v4().substring(0,7);
-		const outputFileName = `tra_${file.name.replace(parsedFile.ext, "")}${hash}${ext}`;
+		const outputFileName = `tra_${file.name.replace(parsedFile.ext, "").replace(/\./g, "_")}${hash}${ext}`;
 
 		const outputFile = `${constants.temporaryVideoLocation}/${outputFileName}`;
 
