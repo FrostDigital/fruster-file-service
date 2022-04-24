@@ -27,11 +27,11 @@ export default {
 
 			bus: {
 
-				UPLOAD_FILE: `http.post.${conf.serviceName}.upload`,
+				UPLOAD_FILE: `http.post.${conf.httpBasePath.replace(/\//g, ".").toLowerCase()}.upload`,
 
-				UPDATE_IMAGE: `http.put.${conf.serviceName}.image.:imageName`,
+				UPDATE_IMAGE: `http.put.${conf.httpBasePath.replace(/\//g, ".").toLowerCase()}.image.:imageName`,
 
-				HEALTH: `http.get.${conf.serviceName}.health`
+				HEALTH: `http.get.${conf.httpBasePath.replace(/\//g, ".").toLowerCase()}.health`
 
 			}
 

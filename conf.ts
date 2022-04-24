@@ -40,6 +40,9 @@ export default {
 	// Name of service to use for all bus subjects
 	serviceName: process.env.SERVICE_NAME || "file-service",
 
+	// Base path used to construct HTTP endpoint, for example POST /file-service/upload
+	httpBasePath: process.env.HTTP_BASE_PATH || process.env.SERVICE_NAME || "file-service",
+
 	// Whether or not you have to be logged in to upload image
 	mustBeLoggedIn: parseBool(process.env.MUST_BE_LOGGED_IN || "false"),
 
