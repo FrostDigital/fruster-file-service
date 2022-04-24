@@ -110,7 +110,7 @@ class FileManager {
 		};
 
 		if (conf.proxyImages)
-			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName", Key).replace("*", "")}`;
+			respBody.url = `${conf.proxyImageUrl}${endpoints.http.GET_IMAGE.replace(":imageName*", Key)}`;
 
 		return respBody;
 	}
@@ -205,7 +205,7 @@ class FileManager {
 						const { Location, Key } = await this.s3.uploadFile(s3Key, Buffer.from(data), mime);
 
 						if (conf.proxyImages)
-							thumbnails.push(`${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName", Key)}`);
+							thumbnails.push(`${conf.proxyImageUrl}${constants.endpoints.http.GET_IMAGE.replace(":imageName*", Key)}`);
 						else
 							thumbnails.push(Location);
 
