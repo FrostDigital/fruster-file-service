@@ -42,6 +42,12 @@ class UploadFileHandler {
 
 		const { path } = req.query;
 
+		if (file.mimetype === "application/octet-stream") {
+			// Attempt to lookup mime type if application/octet-stream as that is
+			// like any binary format
+			file.mimetype = mime.lookup(file.name) || file.mimetype;
+		}
+
 		log.debug("Received upload request", file.name, "mime type ", file.mimetype);
 
 		const isVideo = !conf.disableVideoEncoding && file.mimetype.includes("video/");
