@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import S3Client from "../clients/S3Client";
 import { S3 } from "aws-sdk";
+import * as log from "fruster-log";
 
 class GetFileByKeyHandler {
 
@@ -14,7 +15,10 @@ class GetFileByKeyHandler {
 		// The route parameters is { '0': 'adfadf/fasdfa', slug: 'aaaa' } when I request /aaaa/adfadf/fasdfa . i don't know where the key '0' come from
 		const fileKey = params.fileKey + params["0"];
 
+		log.debug(`GET file ${fileKey}`);
+
 		const { data, mimetype } = await this.s3.getObject(fileKey);
+
 		return this.sendResponse(res, data, mimetype);
 	}
 
