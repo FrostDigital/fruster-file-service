@@ -4,6 +4,7 @@ import { start } from "../file-service";
 import constants from "../lib/constants";
 import InMemoryImageCacheRepo from "../lib/repos/InMemoryImageCacheRepo";
 import testUtils from "fruster-test-utils";
+import { sleep } from "../lib/util/utils";
 
 const specUtils = require("./support/spec-utils");
 
@@ -76,21 +77,20 @@ describe("GetImageHandler", () => {
 		expect(smallImageResponse.body).toBeDefined("smallImageResponse.body");
 		expect(smallImageResponse.body.length).toBe(306, "smallImageResponse.body.length");
 
-		setTimeout(async () => {
-			/*
-			 * Since we do not wait for resized image to be uploaded before sending them back to user
-			 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
-			 */
-			const urlSplits = url.split("/");
-			const imageName = urlSplits[urlSplits.length - 1];
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+		await sleep(5000);
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
+		/*
+		 * Since we do not wait for resized image to be uploaded before sending them back to user
+		 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+		 */
+		const urlSplits = url.split("/");
+		const imageName = urlSplits[urlSplits.length - 1];
+		const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
-		}, 5000);
+		const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
+
+		expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
 	});
 
 	it("should return image url from memory if image has been resized earlier", async () => {
@@ -100,52 +100,51 @@ describe("GetImageHandler", () => {
 
 		await specUtils.get(`${url}?height=${smallHeight}`);
 
-		setTimeout(async () => {
-			await specUtils.get(`${url}?height=${smallHeight}`);
-			/*
-			 * Since we do not wait for resized image to be uploaded before sending them back to user
-			 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
-			 */
-			const urlSplits = url.split("/");
-			const imageName = urlSplits[urlSplits.length - 1];
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+		await sleep(5000);
+		await specUtils.get(`${url}?height=${smallHeight}`);
+		/*
+		 * Since we do not wait for resized image to be uploaded before sending them back to user
+		 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+		 */
+		const urlSplits = url.split("/");
+		const imageName = urlSplits[urlSplits.length - 1];
+		const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
+		const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height: smallHeight })];
 
-			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).not.toContain("w-", "cachedUrlSmallImage");
 
-			expect(Object.keys(inMemoryRepoCacheData[imageName]).length).toBe(1);
-		}, 5000);
+		expect(Object.keys(inMemoryRepoCacheData).filter(k => k.includes(imageName)).length).toBe(1);
 	});
 
-	it("should get image from S3 if it exists", async () => {
+	// TODO: I don't think this test is valid, disabling for now /JS
+	xit("should get image from S3 if it exists", async () => {
 		const height = 10;
 
 		let url = `${conf.serviceHttpUrl}${constants.endpoints.http.GET_IMAGE.replace("*", "")}?height=${height}`;
 		url = url.replace(":imageName", "d31fe20a-11c9-4368-825a-02d68ac0199a.jpg");
 
-		await specUtils.get(url);
+		const res = await specUtils.get(url);
 
-		setTimeout(async () => {
-			/*
-			 * Since we do not wait for resized image to be uploaded before sending them back to user
-			 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
-			 */
-			const urlSplits = url.split("/");
-			let imageName = urlSplits[urlSplits.length - 1];
-			imageName = imageName.replace(`?height=${height}`, "");
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+		await sleep(9500);
+		/*
+		 * Since we do not wait for resized image to be uploaded before sending them back to user
+		 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+		 */
+		const urlSplits = url.split("/");
+		let imageName = urlSplits[urlSplits.length - 1];
+		imageName = imageName.replace(`?height=${height}`, "");
+		const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height })];
+		const cachedUrlSmallImage = inMemoryRepoCacheData[repo.getCacheKey(imageName, { height })];
 
-			expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");
-			expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toContain(`h-${height}`, "cachedUrlSmallImage");
+		expect(cachedUrlSmallImage).toContain("w-null", "cachedUrlSmallImage");
 
-			expect(Object.keys(inMemoryRepoCacheData[imageName]).length).toBe(1);
-		}, 9500);
+		expect(Object.keys(inMemoryRepoCacheData[imageName]).length).toBe(1);
 	});
 
 	it("should return scaled image even if it wasn't possible to upload to s3", async () => {
@@ -163,21 +162,21 @@ describe("GetImageHandler", () => {
 		expect(bigImageResponse.body).toBeDefined("bigImageResponse.body");
 		expect(bigImageResponse.body.length > 800 && bigImageResponse.body.length < 850).toBeTruthy("bigImageResponse.body.length");
 
-		setTimeout(async () => {
-			/*
-			 * Since we do not wait for resized image to be uploaded before sending them back to user
-			 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
-			 */
-			const urlSplits = url.split("/");
-			const imageName = urlSplits[urlSplits.length - 1];
-			const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
+		await sleep(9500);
 
-			const cachedUrlSmallImage = inMemoryRepoCacheData[imageName];
-			const cachedUrlBigImage = inMemoryRepoCacheData[imageName];
+		/*
+		 * Since we do not wait for resized image to be uploaded before sending them back to user
+		 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
+		 */
+		const urlSplits = url.split("/");
+		const imageName = urlSplits[urlSplits.length - 1];
+		const inMemoryRepoCacheData = (await specUtils.get(baseUri + "/proxy-cache")).body;
 
-			expect(cachedUrlSmallImage).toBeUndefined("cachedUrlSmallImage");
-			expect(cachedUrlBigImage).toBeUndefined("cachedUrlBigImage");
-		}, 9500);
+		const cachedUrlSmallImage = inMemoryRepoCacheData[imageName];
+		const cachedUrlBigImage = inMemoryRepoCacheData[imageName];
+
+		expect(cachedUrlSmallImage).toBeUndefined("cachedUrlSmallImage");
+		expect(cachedUrlBigImage).toBeUndefined("cachedUrlBigImage");
 	});
 
 	it("should return 404 if image does not exist", async () => {

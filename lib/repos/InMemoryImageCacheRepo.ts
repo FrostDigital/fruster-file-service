@@ -31,10 +31,16 @@ class InMemoryImageCacheRepo {
 	 * @param {Object} query
 	 */
 	private queryToString({ height, width, angle}: ImageQuery) {
+		const key: string[] = [];
+
+		if (width) 
+			key.push(`width:${width}`);
+		if (height !== undefined)
+			key.push(`height:${height}`);			
 		if (angle)
-			return height || width ? `width:${width},height:${height},angle:${angle}` : `angle:${angle}`;
-		else if (!angle && (height || width))
-			return `width:${width},height:${height}`;
+			key.push(`angle:${angle}`);
+
+		return key.length > 0 ? key.join(",") : undefined
 	}
 
 	/**
@@ -51,4 +57,4 @@ class InMemoryImageCacheRepo {
 
 }
 
-export default  InMemoryImageCacheRepo;
+export default InMemoryImageCacheRepo;
