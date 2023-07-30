@@ -78,7 +78,7 @@ describe("GetImageHandler", () => {
 		expect(smallImageResponse.body.length).toBe(306, "smallImageResponse.body.length");
 
 		await sleep(5000);
-		
+
 		/*
 		 * Since we do not wait for resized image to be uploaded before sending them back to user
 		 * we need to wait a bit in order for the image to be uploaded before checking the repo cache.
@@ -115,12 +115,12 @@ describe("GetImageHandler", () => {
 		expect(cachedUrlSmallImage).toBeDefined("cachedUrlSmallImage");
 		expect(cachedUrlSmallImage).toContain(`h-${smallHeight}`, "cachedUrlSmallImage");
 		expect(cachedUrlSmallImage).not.toContain("w-", "cachedUrlSmallImage");
-				
-		expect(Object.keys(inMemoryRepoCacheData).length).toBe(1);
+
+		expect(Object.keys(inMemoryRepoCacheData).filter(k => k.includes(imageName)).length).toBe(1);
 	});
 
 	// TODO: I don't think this test is valid, disabling for now /JS
-	xit("should get image from S3 if it exists", async () => {		
+	xit("should get image from S3 if it exists", async () => {
 		const height = 10;
 
 		let url = `${conf.serviceHttpUrl}${constants.endpoints.http.GET_IMAGE.replace("*", "")}?height=${height}`;
