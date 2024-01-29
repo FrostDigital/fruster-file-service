@@ -114,7 +114,7 @@ class UploadFileHandler {
 			reqId: busMessage.reqId,
 			transactionId: busMessage.transactionId,
 			data: {
-				url: uploadData.Location,
+				url,
 				key: uploadData.Key,
 				originalName: file.name,
 				mimeType: file.mimetype,
