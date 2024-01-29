@@ -72,3 +72,5 @@ fruster-uploads/
 tmp/
 images/
 videos/
+
+.devcontainer
