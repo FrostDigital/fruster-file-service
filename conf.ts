@@ -84,7 +84,13 @@ export default {
 	videoFormat: process.env.VIDEO_FORMAT,
 
 	// Base URI to S3 bucket from where videos can be downloaded directly
-	videoBaseUri: process.env.AWS_VIDEO_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + s3Bucket
+	videoBaseUri: process.env.AWS_VIDEO_BASE_URI || "https://s3-eu-west-1.amazonaws.com/" + s3Bucket,
+
+	// Base uri to uploaded files, optional - will use s3 bucket if not provided
+	// This will if set be the url returned in the response like so:
+	// {fileUploadBaseUri}/{key}
+	// Example: https://assets.example.com
+	uploadLocationBaseUri: process.env.UPLOAD_LOCATION_BASE_URI || ""
 }
 
 

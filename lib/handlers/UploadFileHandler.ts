@@ -99,12 +99,22 @@ class UploadFileHandler {
 		// The original bus message is passed as string in header "data"
 		const busMessage = parseBusMessage(req.headers.data as string);
 
+		let url = uploadData.Location;
+
+		// If uploadLocationBaseUri is set, we will return the url to the file which should
+		// point to the location where the file can be downloaded, otherwise it might return
+		// url to a private S3 bucket which in some cases might not what you want
+		if (conf.uploadLocationBaseUri) {
+			const endsWithSlash = conf.uploadLocationBaseUri.endsWith("/");
+			url = `${conf.uploadLocationBaseUri}${endsWithSlash ? "" : "/"}file/${uploadData.Key}`;
+		}
+
 		const respBody = {
 			status: 201,
 			reqId: busMessage.reqId,
 			transactionId: busMessage.transactionId,
 			data: {
-				url: uploadData.Location,
+				url,
 				key: uploadData.Key,
 				originalName: file.name,
 				mimeType: file.mimetype,
