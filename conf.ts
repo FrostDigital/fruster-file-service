@@ -71,6 +71,9 @@ export default {
 	// Custom S3 Endpoint if AWS is not used
 	s3Endpoint: process.env.S3_ENDPOINT,
 
+	// Custom S3 Region, will in most cases not be needed
+	s3Region: process.env.S3_REGION,
+
 	// Number of thumbnails that will be extracted from uploaded video
 	noOfThumbnails: Number.parseInt(process.env.NO_OF_THUMBNAILS || "0"),
 

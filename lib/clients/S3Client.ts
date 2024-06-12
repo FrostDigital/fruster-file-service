@@ -26,7 +26,8 @@ class S3Client {
 			agent: new https.Agent({ keepAlive: true })
 		},
 		// @ts-ignore
-		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined
+		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined,
+		region: conf.s3Region || undefined
 	});
 
 	/**
