@@ -74,6 +74,9 @@ export default {
 	// Custom S3 Region, will in most cases not be needed
 	s3Region: process.env.S3_REGION,
 
+	// If to force path style, will in most cases not be needed
+	s3ForcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
+
 	// Number of thumbnails that will be extracted from uploaded video
 	noOfThumbnails: Number.parseInt(process.env.NO_OF_THUMBNAILS || "0"),
 

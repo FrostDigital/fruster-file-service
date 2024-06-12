@@ -27,7 +27,8 @@ class S3Client {
 		},
 		// @ts-ignore
 		endpoint : conf.s3Endpoint ? new AWS.Endpoint(conf.s3Endpoint) : undefined,
-		region: conf.s3Region || undefined
+		region: conf.s3Region || undefined,
+		s3ForcePathStyle: conf.s3ForcePathStyle || undefined
 	});
 
 	/**
