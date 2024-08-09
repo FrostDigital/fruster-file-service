@@ -54,7 +54,7 @@ describe("IsProcessingCompleted", () => {
 			body: { data: { url } }
 		} = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/small.mp4");
 
-		await sleep(5000);
+		await sleep(8000);
 
 		const { status, data } = await bus.request<any, any>({
 			subject: SUBJECT,
