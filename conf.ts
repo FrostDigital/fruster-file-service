@@ -25,10 +25,10 @@ export default {
 	allowOrigin: parseArray(process.env.ALLOW_ORIGIN) || "*",
 
 	// AWS Access key id
-	awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY,
 
 	// AWS Secret access key
-	awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+	awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET,
 
 	// ACL for uploaded files, defaults to public-read which will make
 	// uploaded files public
