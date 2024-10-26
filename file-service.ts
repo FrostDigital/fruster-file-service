@@ -194,7 +194,8 @@ export async function start(busAddress: string, httpServerPort: number) {
 			try {
 				// @ts-ignore
 				await getImageHandler.handle(req, res);
-			} catch (err) {
+			} catch (err: any) {
+				res.status(err.status || 500);
 				res.set("Cache-Control", "max-age=0");
 				res.end(JSON.stringify(err));
 			}
@@ -203,7 +204,8 @@ export async function start(busAddress: string, httpServerPort: number) {
 		app.get(constants.endpoints.http.GET_FILE, async (req, res) => {
 			try {
 				await getFileByKeyHandler.handleHttp(req, res);
-			} catch (err) {
+			} catch (err: any) {
+				res.status(err.status || 500);
 				res.set("Cache-Control", "max-age=0");
 				res.end(JSON.stringify(err));
 			}
