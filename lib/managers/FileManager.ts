@@ -66,13 +66,22 @@ class FileManager {
 
 		let updatedFile = sharp(tmpImage);
 
-		// resize
-		if (query.height || query.width)
-			updatedFile = updatedFile.resize(query.width || null, query.height || null);
-
 		// rotate
-		if (query.angle)
-			updatedFile = updatedFile.rotate(query.angle);
+		if (query.angle) {
+			// Keep any existing metadata before rotating
+			updatedFile = updatedFile.withMetadata().rotate(query.angle);
+		}
+
+		// resize
+		if (query.height || query.width) {
+			if (!query.angle) {
+				// Rotate without any param to instruct sharp to merge any exif orientation before resizing
+				// but only if angle is not already set
+				updatedFile = updatedFile.rotate()
+			}
+
+			updatedFile = updatedFile.resize(query.width || null, query.height || null);
+		}
 
 		// set image quality - default quality is setting, if not set proxyImagesQuality
 		if (conf.proxyImagesQuality && conf.proxyImagesQuality <= 100 && conf.proxyImagesQuality > 0) {

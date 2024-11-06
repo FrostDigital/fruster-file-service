@@ -81,6 +81,86 @@ describe("UpdateImageHandler", () => {
 		expect(rotateImageSize.height).toBe(originalImageSize.width, "rotate image height");
 	});
 
+	it("should be possible to rotate an image which has exif rotation", async () => {
+		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/ludde-exif.jpg");
+
+		const originalImageSize = await getImageSize(url);
+
+		const { status, data } = await testBus.request<any, any>({
+			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				params: {
+					imageName: path.basename(url)
+				},
+				data: { angle: 90 }
+			}
+		});
+
+		expect(status).toBe(200, "status");
+		expect(data.amazonUrl).toBeDefined("amazonUrl");
+		expect(data.url).toBeDefined("url");
+		expect(data.key).toBeDefined("key");
+
+		const rotateImageSize = await getImageSize(data.amazonUrl);
+
+		expect(rotateImageSize.width).toBe(originalImageSize.height, "rotate image width");
+		expect(rotateImageSize.height).toBe(originalImageSize.width, "rotate image height");
+	});
+
+	it("should be possible to resize an image and respect exif rotation", async () => {
+		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/ludde-exif.jpg");
+
+		const { status, data } = await testBus.request<any, any>({
+			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				params: {
+					imageName: path.basename(url)
+				},
+				data: { width: 300 }
+			}
+		});
+
+		expect(status).toBe(200, "status");
+		expect(data.amazonUrl).toBeDefined("amazonUrl");
+		expect(data.url).toBeDefined("url");
+		expect(data.key).toBeDefined("key");
+
+		const rotateImageSize = await getImageSize(data.amazonUrl);
+
+		expect(rotateImageSize.width).toBe(300);
+		expect(rotateImageSize.height).toBe(400);
+	});
+
+	it("should be possible to resize and rotate an image and respect exif rotation", async () => {
+		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/ludde-exif.jpg");
+
+		const { status, data } = await testBus.request<any, any>({
+			subject: constants.endpoints.http.bus.UPDATE_IMAGE,
+			skipOptionsRequest: true,
+			message: {
+				reqId: v4(),
+				params: {
+					imageName: path.basename(url)
+				},
+				data: { width: 300, angle: 90 }
+			}
+		});
+
+		expect(status).toBe(200, "status");
+		expect(data.amazonUrl).toBeDefined("amazonUrl");
+		expect(data.url).toBeDefined("url");
+		expect(data.key).toBeDefined("key");
+
+		const rotateImageSize = await getImageSize(data.amazonUrl);
+
+		expect(rotateImageSize.width).toBe(300);
+		expect(rotateImageSize.height).toBe(400);
+	});
+
 	it("should send rotated image when it request again", async () => {
 		const { body: { data: { url } } } = await specUtils.post(baseUri, constants.endpoints.http.UPLOAD_FILE, "data/trump.jpg");
 
