@@ -64,11 +64,12 @@ class FileManager {
 		//write stream for new file
 		const file = await fs.createWriteStream(newFileLocation);
 
-		let updatedFile = sharp(tmpImage);
+		// Note: rotate before any other operation in order to respect exif orientation
+		let updatedFile = sharp(tmpImage).rotate();
 
 		// resize
 		if (query.height || query.width)
-			updatedFile = updatedFile.resize(query.width || null, query.height || null);
+			updatedFile = updatedFile.rotate().resize(query.width || null, query.height || null);
 
 		// rotate
 		if (query.angle)
