@@ -77,8 +77,6 @@ describe("UpdateImageHandler", () => {
 
 		const rotateImageSize = await getImageSize(data.amazonUrl);
 
-		console.log(11111, data.amazonUrl)
-
 		expect(rotateImageSize.width).toBe(originalImageSize.height, "rotate image width");
 		expect(rotateImageSize.height).toBe(originalImageSize.width, "rotate image height");
 	});
