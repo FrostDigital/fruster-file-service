@@ -19,6 +19,7 @@ health.start();
 
 process.on("uncaughtException", (err) => {
 	log.error(err);
+	console.error(err?.stack);
 	if (err.message && err.message.includes("ECONNRESET")) {
 		health.fail("Service failure due to ECONNRESET");
 	}

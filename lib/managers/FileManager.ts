@@ -64,7 +64,7 @@ class FileManager {
 		//write stream for new file
 		const file = await fs.createWriteStream(newFileLocation);
 
-		let updatedFile = sharp(tmpImage);
+		let updatedFile = sharp(tmpImage, {failOnError: false});
 
 		// rotate
 		if (query.angle) {
