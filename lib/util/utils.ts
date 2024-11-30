@@ -102,13 +102,26 @@ export function isImage(ext?: string) {
  * @returns {Promise<Void>}
  */
 export async function downloadTempFile(s3Client: S3Client, fileKey: string, destination: string) {
-
-
 	makeDirRecursive( destination.split("/").slice(0,-1).join("/"));
 
 	const file = fs.createWriteStream(destination);
 	const oFile = await s3Client.getObject(fileKey);
-	file.write(oFile.data);
+
+	return new Promise<void>((resolve, reject) => {
+        file.write(oFile.data, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                file.end(() => {
+                    resolve();
+                });
+            }
+        });
+
+        file.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
 
